@@ -20,11 +20,22 @@
 <div id="save-ind" class="save-ind">✓ Saved</div>
 
 <!-- ══════════════════════════════════════════════════════════════
-     SCREEN 1: LOGIN
+     SCREEN 1: LOGIN (Step 1: Name)
      ══════════════════════════════════════════════════════════════ -->
 <div id="screen-login" class="screen active">
   <div class="login-wrap">
     <div class="login-card">
+
+      <!-- Step Indicator -->
+      <div class="onboard-progress">
+        <div class="onboard-step active"><span>1</span> Name</div>
+        <span class="onboard-sep">&rarr;</span>
+        <div class="onboard-step"><span>2</span> Course</div>
+        <span class="onboard-sep">&rarr;</span>
+        <div class="onboard-step"><span>3</span> Timetable</div>
+        <span class="onboard-sep">&rarr;</span>
+        <div class="onboard-step"><span>4</span> Review</div>
+      </div>
 
       <!-- Top Theme & Cloud Bar -->
       <div class="login-theme-bar">
@@ -73,98 +84,333 @@
 </div>
 
 <!-- ══════════════════════════════════════════════════════════════
-     SCREEN 2: TIMETABLE SETUP
+     SCREEN 2: COURSE & SECTION SETUP (Step 2: Class/Course)
      ══════════════════════════════════════════════════════════════ -->
-<div id="screen-setup" class="screen">
+<div id="screen-course" class="screen">
+  <div class="course-wrap">
+    <div class="course-card">
+
+      <!-- Step Indicator -->
+      <div class="onboard-progress">
+        <div class="onboard-step done"><span>✓</span> Name</div>
+        <span class="onboard-sep">&rarr;</span>
+        <div class="onboard-step active"><span>2</span> Course</div>
+        <span class="onboard-sep">&rarr;</span>
+        <div class="onboard-step"><span>3</span> Timetable</div>
+        <span class="onboard-sep">&rarr;</span>
+        <div class="onboard-step"><span>4</span> Review</div>
+      </div>
+
+      <div class="course-badge">🎓 Step 2 of 4</div>
+      <h2 class="course-title">Your Course &amp; Section</h2>
+      <p class="course-sub">Provide your program details so your attendance tracker is personalized to your degree batch.</p>
+
+      <div class="course-form">
+        <div class="course-field">
+          <label for="c-program">Course / Program *</label>
+          <input id="c-program" type="text" placeholder="e.g. BCA, B.Tech CSE, B.Sc IT, B.Com" autocomplete="off">
+        </div>
+
+        <div class="course-row">
+          <div class="course-field">
+            <label for="c-semester">Semester / Year *</label>
+            <select id="c-semester">
+              <option value="Semester 1">Semester 1</option>
+              <option value="Semester 2">Semester 2</option>
+              <option value="Semester 3" selected>Semester 3</option>
+              <option value="Semester 4">Semester 4</option>
+              <option value="Semester 5">Semester 5</option>
+              <option value="Semester 6">Semester 6</option>
+              <option value="Semester 7">Semester 7</option>
+              <option value="Semester 8">Semester 8</option>
+            </select>
+          </div>
+          <div class="course-field">
+            <label for="c-section">Section / Batch</label>
+            <input id="c-section" type="text" placeholder="e.g. Section B, Batch 1" value="Section B" autocomplete="off">
+          </div>
+        </div>
+
+        <div class="course-field">
+          <label for="c-college">College / Institute Name (Optional)</label>
+          <input id="c-college" type="text" placeholder="e.g. Apex Institute of Technology" autocomplete="off">
+        </div>
+      </div>
+
+      <div class="course-actions">
+        <button type="button" class="btn-course-back" onclick="navToStep('name')">&larr; Back</button>
+        <button type="button" class="btn-course-next" onclick="submitCourseSetup()">Next: Add Timetable &rarr;</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     SCREEN 3: ADD YOUR TIMETABLE (Step 3: Choice / Manual / Upload)
+     ══════════════════════════════════════════════════════════════ -->
+<div id="screen-timetable" class="screen">
   <div class="setup-page">
 
-    <!-- Header -->
+    <!-- Topbar -->
     <div class="setup-topbar">
-      <div class="setup-logo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>Your Attendance Tracker
+      <div class="setup-logo">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>Your Attendance Tracker
+      </div>
+      <div style="margin-left:auto;">
+        <button type="button" class="btn-course-back" style="padding:6px 12px;font-size:12px;" onclick="navToStep('course')">&larr; Back to Course</button>
       </div>
     </div>
 
     <div class="setup-wrap">
 
+      <!-- Step Indicator -->
+      <div class="onboard-progress" style="margin-bottom:18px;">
+        <div class="onboard-step done"><span>✓</span> Name</div>
+        <span class="onboard-sep">&rarr;</span>
+        <div class="onboard-step done"><span>✓</span> Course</div>
+        <span class="onboard-sep">&rarr;</span>
+        <div class="onboard-step active"><span>3</span> Timetable</div>
+        <span class="onboard-sep">&rarr;</span>
+        <div class="onboard-step"><span>4</span> Review</div>
+      </div>
+
       <div class="setup-hdr">
-        <h1 class="setup-title">📋 Add Your Classes</h1>
+        <h1 class="setup-title">📅 Add Your Timetable</h1>
         <div id="setup-greeting" class="setup-greeting"></div>
-        <p class="setup-sub">Add each class from your college schedule — subject, teacher, room, and the days it occurs. You can edit this anytime in Settings.</p>
-        <button id="load-preset" class="btn-preset">🎓 Load BCA SEM-III SEC-B Preset</button>
+        <p class="setup-sub">Choose how you'd like to set up your schedule. You can enter your classes manually or upload an image of your college timetable for automatic analysis.</p>
       </div>
 
-      <!-- Add class form -->
-      <div class="setup-form-card">
-        <div class="sfc-title">➕ Add a Class</div>
+      <!-- DUAL OPTION CHOOSER -->
+      <div class="tt-options-grid">
+        <div id="tt-opt-manual-card" class="tt-option-card active" onclick="switchTimetableTab('manual')">
+          <span class="tt-opt-badge">OPTION 1</span>
+          <span class="tt-opt-icon">✍️</span>
+          <div class="tt-opt-title">Enter Timetable Manually</div>
+          <div class="tt-opt-desc">Add subjects, teacher names, rooms, days, and timings one by one with live preview.</div>
+        </div>
 
-        <div class="setup-form-grid">
-          <div class="sfg-row">
-            <div class="sf-field sf-wide">
-              <label>Subject Name *</label>
-              <input id="f-subject" class="sf-inp" type="text" placeholder="e.g. Python Programming" autocomplete="off">
-            </div>
-            <div class="sf-field">
-              <label>Subject Code</label>
-              <input id="f-code" class="sf-inp" type="text" placeholder="e.g. CC201" autocomplete="off">
-            </div>
+        <div id="tt-opt-upload-card" class="tt-option-card" onclick="switchTimetableTab('upload')">
+          <span class="tt-opt-badge png-badge">OPTION 2 • AI OCR</span>
+          <span class="tt-opt-icon">📷</span>
+          <div class="tt-opt-title">Upload Timetable</div>
+          <div class="tt-opt-desc">Upload a high-res timetable PNG. Deep scanner extracts subjects, days, timings, and rooms.</div>
+        </div>
+      </div>
+
+      <!-- OPTION 2 PANEL: UPLOAD TIMETABLE -->
+      <div id="panel-upload" class="upload-card" style="display:none;">
+        <div class="sfc-title" style="margin-bottom:14px;">📤 Upload Timetable Image</div>
+        
+        <div id="tt-dropzone" class="upload-dropzone">
+          <input type="file" id="tt-upload-input" class="udz-file-input" accept="image/png">
+          <div class="udz-icon">📑</div>
+          <div class="udz-title">Drag &amp; drop your Timetable PNG here, or click to browse</div>
+          <div class="udz-sub">Supported format: Single-page or multi-page schedule table</div>
+          <div class="udz-pill">PNG only • Maximum 10 MB</div>
+        </div>
+
+        <!-- Image preview area -->
+        <div id="tt-upload-preview" class="upload-preview-card" style="display:none;">
+          <img id="tt-preview-img" class="upc-thumb" alt="Timetable preview">
+          <div class="upc-meta">
+            <div id="tt-file-name" class="upc-name">timetable.png</div>
+            <div id="tt-file-size" class="upc-size">1.2 MB</div>
+            <div class="upc-status">✓ PNG Verified • Ready for analysis</div>
           </div>
-          <div class="sfg-row">
-            <div class="sf-field sf-wide">
-              <label>Teacher Name</label>
-              <input id="f-teacher" class="sf-inp" type="text" placeholder="e.g. Ms. Maya" autocomplete="off">
+          <button type="button" class="btn-upc-remove" onclick="resetUpload()">Remove</button>
+        </div>
+
+        <!-- Trigger button -->
+        <button id="btn-run-analysis" class="btn-analyze-tt" style="display:none;" onclick="startTimetableAnalysis()">
+          <span>🔍</span> Analyze &amp; Extract Timetable
+        </button>
+
+        <!-- Loader -->
+        <div id="tt-analysis-loader" class="analysis-loader" style="display:none;">
+          <div class="analysis-spinner"></div>
+          <div id="tt-analysis-msg" class="analysis-status-text">Scanning image resolution &amp; sharpness...</div>
+          <div class="analysis-subtext">Checking readability, row/column boundaries, and timetable integrity</div>
+        </div>
+
+        <!-- REJECTION BOX -->
+        <div id="tt-rejection-box" style="display:none;">
+          <div class="rejection-card">
+            <div class="rc-header">
+              <div class="rc-icon">❌</div>
+              <div>
+                <h3 class="rc-title">Timetable Rejected</h3>
+                <p id="rc-sub-msg" class="rc-subtitle">We couldn't reliably read the complete timetable.</p>
+              </div>
             </div>
-            <div class="sf-field">
-              <label>Room</label>
-              <input id="f-room" class="sf-inp" type="text" placeholder="e.g. R-80, Lab-2" autocomplete="off">
+            <div class="rc-missing">
+              <div class="rc-missing-title">Missing / unclear:</div>
+              <ul id="rc-missing-list" class="rc-missing-list">
+                <!-- Dynamically populated -->
+              </ul>
             </div>
-          </div>
-          <div class="sfg-row">
-            <div class="sf-field">
-              <label>Type</label>
-              <select id="f-type" class="sf-inp">
-                <option value="Theory">Theory</option>
-                <option value="Theory + Lab">Theory + Lab</option>
-                <option value="Lab">Lab</option>
-                <option value="Activity">Activity</option>
-                <option value="Tutorial">Tutorial</option>
-                <option value="Practical">Practical</option>
-              </select>
-            </div>
-            <div class="sf-field">
-              <label>Icon</label>
-              <select id="f-icon" class="sf-inp">
-                <!-- Populated by JS -->
-              </select>
+            <p class="rc-guidance">Please upload a complete, clear timetable containing all required information, or enter your timetable manually.</p>
+            <div class="rc-actions">
+              <button type="button" class="btn-rc-retry" onclick="resetUpload()">↩ Upload Another PNG</button>
+              <button type="button" class="btn-rc-manual" onclick="switchTimetableTab('manual')">✍️ Enter Manually Instead</button>
             </div>
           </div>
         </div>
 
-        <!-- Day selector -->
-        <div class="sf-field" style="margin-top:4px">
-          <label>Days this class occurs *</label>
-          <div id="f-days" class="day-picker">
-            <label class="day-lbl"><input type="checkbox" value="1"><span>Mon</span></label>
-            <label class="day-lbl"><input type="checkbox" value="2"><span>Tue</span></label>
-            <label class="day-lbl"><input type="checkbox" value="3"><span>Wed</span></label>
-            <label class="day-lbl"><input type="checkbox" value="4"><span>Thu</span></label>
-            <label class="day-lbl"><input type="checkbox" value="5"><span>Fri</span></label>
-            <label class="day-lbl"><input type="checkbox" value="6"><span>Sat</span></label>
-          </div>
+      </div><!-- /panel-upload -->
+
+      <!-- OPTION 1 PANEL: ENTER MANUALLY -->
+      <div id="panel-manual">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+          <div class="sfc-title">➕ Add a Class Entry</div>
+          <button type="button" id="load-preset" class="btn-preset" style="margin:0;">🎓 Load BCA SEM-III SEC-B Preset</button>
         </div>
 
-        <button id="add-cls-btn" class="btn-add-class">➕ Add This Class</button>
+        <div class="setup-form-card">
+          <div class="setup-form-grid">
+            <div class="sfg-row">
+              <div class="sf-field sf-wide">
+                <label for="f-subject">Subject Name *</label>
+                <input id="f-subject" class="sf-inp" type="text" placeholder="e.g. Python Programming" autocomplete="off">
+              </div>
+              <div class="sf-field">
+                <label for="f-code">Subject Code</label>
+                <input id="f-code" class="sf-inp" type="text" placeholder="e.g. CC201" autocomplete="off">
+              </div>
+            </div>
+
+            <div class="sfg-row">
+              <div class="sf-field sf-wide">
+                <label for="f-teacher">Teacher Name</label>
+                <input id="f-teacher" class="sf-inp" type="text" placeholder="e.g. Ms. Maya" autocomplete="off">
+              </div>
+              <div class="sf-field">
+                <label for="f-room">Room / Lab</label>
+                <input id="f-room" class="sf-inp" type="text" placeholder="e.g. R-80, Lab-2" autocomplete="off">
+              </div>
+            </div>
+
+            <div class="sfg-row">
+              <div class="sf-field">
+                <label for="f-type">Class Type</label>
+                <select id="f-type" class="sf-inp">
+                  <option value="Theory">Theory</option>
+                  <option value="Theory + Lab">Theory + Lab</option>
+                  <option value="Lab">Lab</option>
+                  <option value="Activity">Activity</option>
+                  <option value="Tutorial">Tutorial</option>
+                  <option value="Practical">Practical</option>
+                </select>
+              </div>
+              <div class="sf-field">
+                <label for="f-icon">Icon</label>
+                <select id="f-icon" class="sf-inp">
+                  <!-- Populated by JS -->
+                </select>
+              </div>
+            </div>
+
+            <!-- Start Time & End Time -->
+            <div class="sfg-row">
+              <div class="sf-field">
+                <label for="f-start-time">Start Time *</label>
+                <input id="f-start-time" class="sf-inp" type="time" value="09:30">
+              </div>
+              <div class="sf-field">
+                <label for="f-end-time">End Time *</label>
+                <input id="f-end-time" class="sf-inp" type="time" value="10:30">
+              </div>
+            </div>
+          </div>
+
+          <!-- Day selector -->
+          <div class="sf-field" style="margin-top:4px">
+            <label>Days this class occurs *</label>
+            <div id="f-days" class="day-picker">
+              <label class="day-lbl"><input type="checkbox" value="1"><span>Mon</span></label>
+              <label class="day-lbl"><input type="checkbox" value="2"><span>Tue</span></label>
+              <label class="day-lbl"><input type="checkbox" value="3"><span>Wed</span></label>
+              <label class="day-lbl"><input type="checkbox" value="4"><span>Thu</span></label>
+              <label class="day-lbl"><input type="checkbox" value="5"><span>Fri</span></label>
+              <label class="day-lbl"><input type="checkbox" value="6"><span>Sat</span></label>
+            </div>
+          </div>
+
+          <button id="add-cls-btn" class="btn-add-class" style="margin-top:14px;">➕ Add This Class</button>
+        </div>
+
+        <!-- Added classes preview list -->
+        <div class="setup-list-hdr">
+          <div class="slh-title">Added Classes Preview</div>
+        </div>
+        <div id="setup-list" class="setup-list"></div>
+
+        <!-- Next to Review button -->
+        <div class="setup-footer">
+          <button id="start-btn" class="btn-start" disabled onclick="navToStep('review')">🔍 Review &amp; Confirm Timetable &rarr;</button>
+          <button type="button" id="skip-btn" class="btn-skip-setup" onclick="startTracking()">⚡ Skip &amp; Go Directly to Website (Add Classes Later)</button>
+        </div>
+      </div><!-- /panel-manual -->
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     SCREEN 4: REVIEW & CONFIRM TIMETABLE
+     ══════════════════════════════════════════════════════════════ -->
+<div id="screen-review" class="screen">
+  <div class="review-wrap">
+    <div class="review-card">
+
+      <!-- Step Indicator -->
+      <div class="onboard-progress">
+        <div class="onboard-step done"><span>✓</span> Name</div>
+        <span class="onboard-sep">&rarr;</span>
+        <div class="onboard-step done"><span>✓</span> Course</div>
+        <span class="onboard-sep">&rarr;</span>
+        <div class="onboard-step done"><span>✓</span> Timetable</div>
+        <span class="onboard-sep">&rarr;</span>
+        <div class="onboard-step active"><span>4</span> Review</div>
       </div>
 
-      <!-- Added classes list -->
-      <div class="setup-list-hdr">
-        <div class="slh-title">Your Timetable</div>
+      <div class="review-hdr">
+        <h2 class="review-title">🔍 Timetable Analysis Complete</h2>
+        <div id="review-meta-pills" class="review-meta-pills">
+          <!-- Populated dynamically: Course, Semester, Section, Classes count -->
+        </div>
       </div>
-      <div id="setup-list" class="setup-list"></div>
 
-      <!-- Start tracking -->
-      <div class="setup-footer">
-        <button id="start-btn" class="btn-start" disabled>➕ Add your classes above to continue</button>
-        <button type="button" id="skip-btn" class="btn-skip-setup" onclick="startTracking()">⚡ Skip &amp; Go Directly to Website (Add Classes Later)</button>
+      <!-- Uncertain fields warning -->
+      <div id="review-uncertain-banner" class="review-uncertain-banner" style="display:none;">
+        <span>⚠️</span>
+        <div>Some timetable information needs confirmation. Highlighted cells can be edited directly below.</div>
+      </div>
+
+      <!-- Review Table -->
+      <div class="review-table-container">
+        <table class="review-table">
+          <thead>
+            <tr>
+              <th>Subject</th>
+              <th>Teacher</th>
+              <th>Day</th>
+              <th>Time</th>
+              <th>Room</th>
+              <th>Type</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="review-table-body">
+            <!-- Rows rendered dynamically -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="review-actions">
+        <button type="button" class="btn-rev-reupload" onclick="navToStep('timetable')">↩ Upload / Edit Again</button>
+        <button type="button" class="btn-rev-edit" onclick="switchTimetableTab('manual'); navToStep('timetable');">✎ Add More Classes</button>
+        <button type="button" class="btn-rev-confirm" onclick="confirmAndActivateTimetable()">✓ Confirm &amp; Start Tracking</button>
       </div>
 
     </div>
@@ -590,6 +836,8 @@
 <!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<!-- Tesseract OCR Engine (Client-Side) -->
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script src="app.js?v=3.5"></script>
 </body>
 </html>
