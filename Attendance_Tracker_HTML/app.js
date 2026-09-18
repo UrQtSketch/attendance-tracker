@@ -1,4 +1,5 @@
 // ================================================================
+// Copyright (c) 2026 UrQtSketch. All rights reserved.
 // AttendX v3 — Multi-User | Dynamic Timetable | Login Flow
 // ================================================================
 
