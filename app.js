@@ -124,6 +124,10 @@ async function syncFromFirebase(username) {
       if (data.timetable && Array.isArray(data.timetable) && data.timetable.length > 0) {
         Store.saveTT(data.timetable);
         loadTT(data.timetable);
+        if (!qs('#screen-app') || !qs('#screen-app').classList.contains('active')) {
+          UserMgr.setStep('completed');
+          bootApp(data.timetable);
+        }
       }
       if (data.attendance && typeof data.attendance === 'object') {
         const localAtt = Store.getAtt();
@@ -785,7 +789,7 @@ window.startDemoMode = function() {
 };
 
 // "Continue" button: Step 1 (Name) -> Step 2 (Course)
-function doLogin(){
+async function doLogin(){
   const inp = qs('#login-inp');
   const username = (inp ? inp.value : '').trim();
   if(!username || username.length < 2){
@@ -794,8 +798,23 @@ function doLogin(){
     return;
   }
 
+  const btn = qs('#login-btn');
+  const oldText = btn ? btn.textContent : 'Continue →';
+  if (btn) btn.textContent = 'Checking Cloud...';
+
   UserMgr.set(username);
-  const existingTT = Store.getTT() || [];
+  let existingTT = Store.getTT() || [];
+
+  if (existingTT.length === 0 && db) {
+    try {
+      await syncFromFirebase(username);
+      existingTT = Store.getTT() || [];
+    } catch (e) {
+      console.warn('Login cloud fetch:', e);
+    }
+  }
+
+  if (btn) btn.textContent = oldText;
 
   if (existingTT.length > 0) {
     playAudio('celebrate');
