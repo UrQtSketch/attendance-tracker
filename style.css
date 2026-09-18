@@ -3704,5 +3704,83 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); 
   color: #a5b4fc;
 }
 
+/* ── CREATOR BRANDING & INSTAGRAM BADGE ───────────────────────── */
+.login-creator-footer {
+  margin-top: 22px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.lcf-text {
+  font-size: 11.5px;
+  color: var(--text3);
+  font-weight: 500;
+}
+
+.lcf-text strong {
+  color: var(--text2);
+  font-weight: 700;
+}
+
+.creator-insta-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fb7185;
+  text-decoration: none;
+  transition: all 0.25s ease;
+}
+
+.creator-insta-badge:hover {
+  background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+  color: #ffffff;
+  border-color: transparent;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(225, 48, 108, 0.45);
+}
+
+.creator-insta-badge .insta-svg {
+  display: inline-block;
+  vertical-align: middle;
+  transition: transform 0.2s ease;
+}
+
+.creator-insta-badge:hover .insta-svg {
+  transform: scale(1.18);
+}
+
+.sb-creator-footer {
+  margin-top: auto;
+  padding: 16px 14px 12px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.sb-creator-copy {
+  font-size: 11px;
+  color: var(--text3);
+  font-weight: 500;
+}
+
+.sb-creator-copy strong {
+  color: var(--text2);
+  font-weight: 700;
+}
+
+
 
 
