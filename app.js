@@ -582,6 +582,34 @@ window.loginAs=async function(u){
   checkAuth();
 };
 
+// 1-Click Instant Demo Mode (Showcase all features immediately)
+window.startDemoMode = function() {
+  const demoUser = 'Arjun (Demo)';
+  UserMgr.set(demoUser);
+  App.pendingTT = BCA_PRESET.map((e,i)=>({
+    ...e, id:'cls_p_'+i,
+    subjectKey:sanitizeKey(e.subject+'_'+(e.code||'')),
+    color:PALETTE[i%PALETTE.length],
+  }));
+  Store.saveTT(App.pendingTT);
+
+  const att = {};
+  for (let i = -7; i <= 0; i++) {
+    const dk = Dt.add(Dt.today(), i);
+    if (Dt.jsDay(dk) !== 0) {
+      att[dk] = {};
+      const cls = classesForDate(dk);
+      cls.forEach((c, idx) => {
+        att[dk][c.id] = (idx % 5 === 0) ? 'absent' : 'present';
+      });
+    }
+  }
+  Store.saveAtt(att);
+  playAudio('celebrate');
+  triggerConfetti();
+  bootApp(App.pendingTT);
+};
+
 // "Continue" button → ALWAYS show setup/Add-Classes screen after login
 // (pre-populated for returning users, empty for new users)
 async function doLogin(){

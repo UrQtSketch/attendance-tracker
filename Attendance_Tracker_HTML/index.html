@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=3.2">
+  <link rel="stylesheet" href="style.css?v=3.3">
 </head>
 <body>
 
@@ -26,6 +26,17 @@
   <div class="login-wrap">
     <div class="login-card">
 
+      <!-- Top Theme & Cloud Bar -->
+      <div class="login-theme-bar">
+        <span class="lt-label">🎨 Theme:</span>
+        <div class="theme-pills">
+          <button class="theme-pill-btn theme-pill-cosmic active" title="Cosmic Midnight" onclick="setTheme('cosmic')"></button>
+          <button class="theme-pill-btn theme-pill-emerald" title="Emerald Obsidian" onclick="setTheme('emerald')"></button>
+          <button class="theme-pill-btn theme-pill-sunset" title="Sunset Velvet" onclick="setTheme('sunset')"></button>
+          <button class="theme-pill-btn theme-pill-oled" title="Pure OLED" onclick="setTheme('oled')"></button>
+        </div>
+      </div>
+
       <!-- Logo -->
       <div class="login-logo">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -37,11 +48,21 @@
       <h1 class="login-title">Your Attendance Tracker</h1>
       <p class="login-tagline">Track your college attendance — smart &amp; simple</p>
 
+      <!-- Feature Badges -->
+      <div class="login-features">
+        <span>⚡ Bunkometer AI</span>
+        <span>☁️ Cloud Firestore</span>
+        <span>🗓️ Weekly Matrix</span>
+      </div>
+
       <!-- Input -->
       <div class="login-form">
         <label class="login-label" for="login-inp">Enter your name to continue</label>
         <input id="login-inp" class="login-inp" type="text" placeholder="e.g. Rahul, Priya, Amit..." maxlength="30" autocomplete="off" spellcheck="false">
         <button id="login-btn" class="login-btn">Continue &rarr;</button>
+
+        <div class="login-or"><span>OR</span></div>
+        <button type="button" class="login-demo-btn" onclick="startDemoMode()">🚀 1-Click Live Demo (Explore All Features)</button>
       </div>
 
       <!-- Existing users -->
@@ -522,6 +543,6 @@
 <!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
-<script src="app.js?v=3.2"></script>
+<script src="app.js?v=3.3"></script>
 </body>
 </html>
