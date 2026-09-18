@@ -1249,3 +1249,634 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); 
   pointer-events: none;
   z-index: 10000;
 }
+
+/* ── Quick Actions Bar ───────────────────────────────────────────── */
+.quick-actions-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.btn-quick-action {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  color: var(--text2);
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.btn-quick-action:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text);
+  transform: translateY(-1px);
+}
+.btn-mark-all-p {
+  background: rgba(52, 211, 153, 0.12);
+  border-color: rgba(52, 211, 153, 0.3);
+  color: var(--green);
+}
+.btn-mark-all-p:hover {
+  background: rgba(52, 211, 153, 0.22);
+  color: var(--green);
+}
+
+/* ── Mobile Elements (Hidden on Desktop by default) ──────────────── */
+.mobile-header {
+  display: none;
+}
+.mobile-nav {
+  display: none;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   RESPONSIVE LAYOUT FOR PHONES & TABLETS (<= 860px)
+   ════════════════════════════════════════════════════════════════ */
+@media (max-width: 860px) {
+  /* Layout: Single Column Stack */
+  .layout {
+    flex-direction: column;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Desktop sidebar hidden on phone */
+  .sidebar {
+    display: none !important;
+  }
+
+  /* Main area adjusts to full width */
+  .main-wrap {
+    width: 100%;
+    min-width: 0;
+  }
+  .main {
+    padding: 14px 12px calc(80px + env(safe-area-inset-bottom, 12px));
+    max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* ── Sleek Phone Header (Sticky at top) ────────────────────────── */
+  .mobile-header {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: rgba(10, 14, 26, 0.92);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 14px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  }
+  .mh-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .mh-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .mh-logo {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--blue), var(--purple));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+    flex-shrink: 0;
+  }
+  .mh-user-info {
+    display: flex;
+    flex-direction: column;
+  }
+  .mh-app-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13.5px;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1.2;
+  }
+  .mh-user-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11.5px;
+    color: var(--text2);
+    font-weight: 600;
+  }
+  .mh-user-pill #mh-user-name {
+    max-width: 130px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--blue2);
+    font-weight: 700;
+  }
+  .mh-logout-btn {
+    background: transparent;
+    border: 1px solid var(--border2);
+    color: var(--text3);
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  .mh-logout-btn:hover {
+    background: rgba(248, 113, 113, 0.15);
+    color: var(--red);
+  }
+  .mh-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .mh-sound-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text);
+    transition: all 0.2s;
+  }
+  .mh-sound-btn:active {
+    transform: scale(0.92);
+  }
+  .mh-cloud {
+    font-size: 14px;
+    padding: 7px 10px;
+    border-radius: 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 36px;
+    cursor: default;
+  }
+
+  /* Quick status & theme strip */
+  .mh-strip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 7px 12px;
+    border-radius: 12px;
+  }
+  .mh-stat-box {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+  }
+  .mh-pct-val {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 17px;
+    font-weight: 800;
+  }
+  .mh-pct-lbl {
+    font-size: 10px;
+    color: var(--text3);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .mh-counts {
+    display: flex;
+    gap: 8px;
+  }
+  .mh-cnt {
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .mh-cnt-p { color: var(--green); }
+  .mh-cnt-a { color: var(--red); }
+  .mh-theme-pills {
+    display: flex;
+    gap: 5px;
+  }
+  .mh-theme-pills .theme-pill-btn {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* ── Phone Bottom Navigation Bar (Fixed & Frosted) ─────────────── */
+  .mobile-nav {
+    display: flex !important;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: rgba(10, 14, 26, 0.94);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-top: 1px solid var(--border2);
+    align-items: center;
+    justify-content: space-around;
+    padding: 0 4px;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    z-index: 999;
+    box-shadow: 0 -8px 28px rgba(0, 0, 0, 0.6);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .mobile-nav::-webkit-scrollbar {
+    display: none;
+  }
+  .mobile-nav .nav-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    background: transparent;
+    border: none;
+    color: var(--text3);
+    font-size: 9px;
+    font-weight: 700;
+    padding: 5px 2px;
+    border-radius: 10px;
+    cursor: pointer;
+    flex: 1 0 auto;
+    min-width: 44px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mobile-nav .nav-btn span:first-child {
+    font-size: 17px;
+    line-height: 1.1;
+  }
+  .mobile-nav .nav-btn.active {
+    color: var(--blue2);
+    background: rgba(99, 102, 241, 0.16);
+    transform: translateY(-1px);
+  }
+
+  /* ── Screen 1: Login Phone Adjustments ─────────────────────────── */
+  .login-wrap {
+    padding: 20px 14px;
+    align-items: center;
+  }
+  .login-card {
+    padding: 26px 18px;
+    border-radius: 22px;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  .login-title {
+    font-size: 22px;
+  }
+  .login-tagline {
+    font-size: 13px;
+  }
+  .login-features span {
+    font-size: 10px;
+    padding: 3px 8px;
+  }
+  .login-inp {
+    font-size: 15px;
+    padding: 13px 14px;
+  }
+  .login-btn {
+    padding: 13px;
+    font-size: 14.5px;
+  }
+  .login-demo-btn {
+    padding: 12px;
+    font-size: 13px;
+  }
+
+  /* ── Screen 2: Setup Phone Adjustments ─────────────────────────── */
+  .setup-wrap {
+    padding: 16px 12px 100px;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  .setup-title {
+    font-size: 20px;
+  }
+  .setup-sub {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .setup-form-card {
+    padding: 16px 14px;
+  }
+  .sfg-row {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .day-picker {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 4px;
+  }
+  .day-lbl span {
+    width: 100%;
+    height: 40px;
+    font-size: 11px;
+    padding: 0;
+  }
+  .btn-preset {
+    width: 100%;
+    text-align: center;
+    padding: 12px;
+    font-size: 12.5px;
+  }
+  .scr {
+    padding: 12px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .scr-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .scr-del {
+    align-self: flex-end;
+  }
+
+  /* ── Screen 3: Today View ──────────────────────────────────────── */
+  .date-bar {
+    padding: 14px 12px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .date-bar-l {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .date-day {
+    font-size: 19px;
+  }
+  .date-full {
+    font-size: 12px;
+  }
+  .date-bar-r {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .date-bar-r .hol-btn,
+  .date-bar-r .btn-today {
+    flex: 1;
+    text-align: center;
+    justify-content: center;
+    padding: 10px 6px;
+    font-size: 12px;
+  }
+  .quick-actions-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .btn-quick-action {
+    flex: 1;
+    padding: 12px 8px;
+    font-size: 12px;
+    text-align: center;
+    border-radius: 12px;
+    min-height: 44px;
+  }
+
+  /* Day Summary Grid */
+  .ds-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding: 12px;
+  }
+  .ds-val {
+    font-size: 18px;
+  }
+  .ds-lbl {
+    font-size: 10px;
+  }
+
+  /* Class Cards */
+  .class-list {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .cc-body {
+    padding: 14px 12px;
+  }
+  .cc-subj {
+    font-size: 14px;
+  }
+  .cc-actions {
+    gap: 8px;
+  }
+  .b-p, .b-a {
+    padding: 12px 10px;
+    font-size: 13px;
+    min-height: 44px;
+    border-radius: 12px;
+  }
+
+  /* ── Weekly Schedule ───────────────────────────────────────────── */
+  .sched-wrapper {
+    overflow-x: hidden;
+  }
+  .sched-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding-bottom: 0;
+  }
+  .sched-day-col {
+    padding: 12px;
+  }
+
+  /* ── Calendar ──────────────────────────────────────────────────── */
+  .cal-wrapper {
+    padding: 14px 8px;
+  }
+  .cal-head div {
+    font-size: 9.5px;
+    padding: 3px 0;
+  }
+  .cal-grid {
+    gap: 3px;
+  }
+  .ce {
+    border-radius: 8px;
+  }
+  .ce-num {
+    font-size: 11.5px;
+  }
+  .ce-dot {
+    font-size: 8px;
+  }
+  .cal-legend {
+    font-size: 10px;
+    gap: 6px;
+    justify-content: center;
+  }
+
+  /* ── Subjects & Overview ───────────────────────────────────────── */
+  .ov-card {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 18px 14px;
+    gap: 14px;
+  }
+  .ov-pct {
+    font-size: 38px;
+  }
+  .ov-right {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 12px;
+  }
+  .ov-stat {
+    font-size: 11.5px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+  .ov-stat span:first-child {
+    font-size: 18px;
+  }
+  .subj-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  /* ── History ───────────────────────────────────────────────────── */
+  .hist-filters {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .hist-sel {
+    width: 100%;
+  }
+  .hr-row {
+    padding: 12px 12px;
+  }
+  .hr-date {
+    font-size: 13px;
+  }
+  .hr-pct {
+    font-size: 17px;
+  }
+
+  /* ── Analytics & Target Simulator ──────────────────────────────── */
+  .an-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .ab-row {
+    grid-template-columns: 85px 1fr 45px;
+    gap: 8px;
+  }
+  .ab-name {
+    font-size: 12px;
+  }
+  .bunkometer-card {
+    padding: 16px 12px;
+  }
+  .bunk-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .bunk-box-val {
+    font-size: 22px;
+  }
+  .bunk-verdict {
+    font-size: 11.5px;
+    padding: 8px 10px;
+  }
+  .badges-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .badge-item {
+    padding: 10px 8px;
+    gap: 8px;
+  }
+  .badge-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 18px;
+  }
+  .badge-title {
+    font-size: 11.5px;
+  }
+  .badge-desc {
+    font-size: 9px;
+  }
+
+  /* ── Settings ──────────────────────────────────────────────────── */
+  .settings-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .setting-card {
+    padding: 16px 14px;
+  }
+  .setting-title {
+    font-size: 13.5px;
+  }
+  .setting-desc {
+    font-size: 12px;
+  }
+}
+
+/* Extra Small Phones (<= 380px) */
+@media (max-width: 380px) {
+  .login-card {
+    padding: 20px 14px;
+  }
+  .date-day {
+    font-size: 17px;
+  }
+  .ds-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .bunk-metric-boxes {
+    grid-template-columns: 1fr;
+  }
+  .badges-grid {
+    grid-template-columns: 1fr;
+  }
+  .mobile-nav .nav-btn {
+    min-width: 40px;
+    font-size: 8.5px;
+  }
+  .mobile-nav .nav-btn span:first-child {
+    font-size: 15px;
+  }
+}
+

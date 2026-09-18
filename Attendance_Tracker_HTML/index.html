@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=3.3">
+  <link rel="stylesheet" href="style.css?v=3.4">
 </head>
 <body>
 
@@ -269,6 +269,51 @@
 
   <!-- ──────── MAIN ──────── -->
   <div class="main-wrap">
+
+    <!-- Mobile Header (Sticky on Phone Screens) -->
+    <header class="mobile-header">
+      <div class="mh-top">
+        <div class="mh-brand">
+          <div class="mh-logo">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+              <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+            </svg>
+          </div>
+          <div class="mh-user-info">
+            <div class="mh-app-title">Attendance</div>
+            <div class="mh-user-pill">
+              <span id="mh-user-name">User</span>
+              <button class="mh-logout-btn" onclick="doLogout()" title="Switch user">&#8627;</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="mh-controls">
+          <button class="mh-sound-btn" id="mh-sound-btn" onclick="toggleSound()" title="Sound toggle">🔊</button>
+          <div class="mh-cloud" id="mh-cloud-badge" title="Firebase Connected">☁️</div>
+        </div>
+      </div>
+
+      <!-- Mobile Quick Attendance & Theme Strip -->
+      <div class="mh-strip">
+        <div class="mh-stat-box">
+          <span class="mh-pct-val" id="mh-pct">0%</span>
+          <span class="mh-pct-lbl">Overall</span>
+        </div>
+        <div class="mh-counts">
+          <span class="mh-cnt mh-cnt-p">✓ <strong id="mh-present">0</strong></span>
+          <span class="mh-cnt mh-cnt-a">✕ <strong id="mh-absent">0</strong></span>
+        </div>
+        <div class="theme-pills mh-theme-pills">
+          <button class="theme-pill-btn theme-pill-cosmic active" title="Cosmic" onclick="setTheme('cosmic')"></button>
+          <button class="theme-pill-btn theme-pill-emerald" title="Emerald" onclick="setTheme('emerald')"></button>
+          <button class="theme-pill-btn theme-pill-sunset" title="Sunset" onclick="setTheme('sunset')"></button>
+          <button class="theme-pill-btn theme-pill-oled" title="OLED" onclick="setTheme('oled')"></button>
+        </div>
+      </div>
+    </header>
+
     <main class="main">
 
       <!-- TODAY -->
@@ -529,6 +574,7 @@
       <button class="nav-btn" data-s="schedule"><span>🗓️</span><span>Sched</span></button>
       <button class="nav-btn" data-s="calendar"><span>📆</span><span>Cal</span></button>
       <button class="nav-btn" data-s="subjects"><span>📊</span><span>Subjects</span></button>
+      <button class="nav-btn" data-s="history"><span>📜</span><span>History</span></button>
       <button class="nav-btn" data-s="analytics"><span>📈</span><span>Stats</span></button>
       <button class="nav-btn" data-s="settings"><span>⚙️</span><span>Settings</span></button>
     </nav>
@@ -543,6 +589,6 @@
 <!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
-<script src="app.js?v=3.3"></script>
+<script src="app.js?v=3.4"></script>
 </body>
 </html>

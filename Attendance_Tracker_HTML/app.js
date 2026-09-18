@@ -44,6 +44,7 @@ function updateCloudBadge(status, text) {
   const badge = qs('#sb-cloud-badge');
   const txt = qs('#cloud-status-text');
   const sTxt = qs('#s-cloud-status');
+  const mhBadge = qs('#mh-cloud-badge');
   if (badge) {
     badge.className = `sb-cloud-badge ${status}`;
   }
@@ -51,6 +52,10 @@ function updateCloudBadge(status, text) {
   if (sTxt) {
     sTxt.textContent = status === 'connected' ? 'Connected (attendence-tracker-d5940)' : (status === 'syncing' ? 'Syncing...' : 'Local Mode');
     sTxt.style.color = status === 'connected' ? 'var(--safe)' : (status === 'syncing' ? 'var(--warn)' : 'var(--danger)');
+  }
+  if (mhBadge) {
+    mhBadge.title = text;
+    mhBadge.textContent = status === 'connected' ? '☁️' : (status === 'syncing' ? '🔄' : '⚠️');
   }
 }
 
@@ -424,12 +429,16 @@ window.toggleSound = function() {
 function updateSoundUI() {
   const sbBtn = qs('#sound-btn');
   const setBtn = qs('#s-sound-btn');
+  const mhBtn = qs('#mh-sound-btn');
   if (sbBtn) {
     sbBtn.textContent = App.soundEnabled ? '🔊' : '🔇';
     sbBtn.className = `btn-sound-toggle ${App.soundEnabled ? '' : 'muted'}`;
   }
   if (setBtn) {
     setBtn.textContent = App.soundEnabled ? '🔊 Sound Enabled' : '🔇 Sound Muted';
+  }
+  if (mhBtn) {
+    mhBtn.textContent = App.soundEnabled ? '🔊' : '🔇';
   }
 }
 
@@ -505,7 +514,7 @@ window.setTheme = function(themeName) {
   Store.saveCfg(App.cfg);
 
   qsa('.theme-pill-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.id === `th-${t}`);
+    btn.classList.toggle('active', btn.id === `th-${t}` || btn.classList.contains(`theme-pill-${t}`));
   });
 
   const sel = qs('#s-theme-sel');
@@ -550,6 +559,7 @@ function bootApp(tt){
   updateBunkometer();
   const user=UserMgr.get();
   const uName=qs('#app-user-name'); if(uName) uName.textContent=user;
+  const mhName=qs('#mh-user-name'); if(mhName) mhName.textContent=user;
   const uAv=qs('#app-user-av'); if(uAv) uAv.textContent=(user||'?').charAt(0).toUpperCase();
   showScreen('app');
   updateSidebar();
@@ -762,6 +772,13 @@ function updateSidebar(){
   const gp=qs('#g-pct'); if(gp){ gp.textContent=fmtPct(pct); gp.className='g-pct clr-'+sc; }
   const pe=qs('#sb-present'),ae=qs('#sb-absent');
   if(pe) pe.textContent=ov.present; if(ae) ae.textContent=ov.absent;
+
+  // Mobile Header sync
+  const mPct=qs('#mh-pct'), mP=qs('#mh-present'), mA=qs('#mh-absent'), mU=qs('#mh-user-name');
+  if(mPct){ mPct.textContent=fmtPct(pct); mPct.className='mh-pct-val clr-'+sc; }
+  if(mP) mP.textContent=ov.present;
+  if(mA) mA.textContent=ov.absent;
+  if(mU) mU.textContent=UserMgr.get()||'User';
   const plan=plannerCalc(ov.present,ov.total,cfg.req), pm=qs('#p-miss'), pn=qs('#p-need');
   if(!pm) return;
   if(!ov.total){ pm.innerHTML='<i>📌</i> Mark attendance to see insights.'; if(pn){pn.innerHTML='';pn.style.display='none';} return; }
