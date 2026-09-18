@@ -210,6 +210,11 @@
           <div class="udz-pill">Any image format • Up to 20 MB</div>
         </div>
 
+        <!-- Sample Reference Format Trigger -->
+        <div class="udz-sample-link" style="margin-top:12px;text-align:center;">
+          <button type="button" class="btn-link-format" onclick="openReferenceModal()">📋 View Supported Timetable Format Example</button>
+        </div>
+
         <!-- Image preview area -->
         <div id="tt-upload-preview" class="upload-preview-card" style="display:none;">
           <img id="tt-preview-img" class="upc-thumb" alt="Timetable preview">
@@ -249,6 +254,27 @@
                 <!-- Dynamically populated -->
               </ul>
             </div>
+
+            <!-- Reference Format Guidance Box (shown on incompatible_schema or validation failure) -->
+            <div id="rc-reference-box" class="rc-reference-box" style="display:none;">
+              <div class="rc-ref-badge">📋 Standard Academic Timetable Reference Format</div>
+              <p class="rc-ref-desc">
+                Our analyzer supports <strong>any course</strong> (B.A., BBA, BCA, B.Tech, B.Com, B.Sc) and <strong>any subjects</strong>, but the layout must follow an academic table/grid structure (not a plain text list):
+              </p>
+              <div class="rc-ref-preview-wrap" onclick="openReferenceModal()" title="Click to enlarge template">
+                <img src="assets/reference_timetable_format.jpg" alt="Reference Timetable Format" class="rc-ref-thumb">
+                <div class="rc-ref-overlay">
+                  <span>🔍 Click to View Full Template</span>
+                </div>
+              </div>
+              <ul class="rc-ref-checklist">
+                <li><span class="chk-icon">✅</span> <strong>Table Grid:</strong> Row &amp; column tabular layout with cells</li>
+                <li><span class="chk-icon">✅</span> <strong>Period Columns:</strong> Period 1–8 or start/end times</li>
+                <li><span class="chk-icon">✅</span> <strong>Cell Details:</strong> Subject, teacher name, and room/lab in each cell</li>
+                <li><span class="chk-icon">❌</span> <strong>Rejected:</strong> Plain list of &ldquo;Day: Subject&rdquo; without table structure</li>
+              </ul>
+            </div>
+
             <p id="rc-guidance-msg" class="rc-guidance">Please upload a complete, clear timetable containing all required information, or enter your timetable manually.</p>
             <div class="rc-actions">
               <button type="button" class="btn-rc-retry" onclick="resetUpload()">↩ Upload Another Image</button>
@@ -884,6 +910,33 @@
   </div><!-- /main-wrap -->
 </div><!-- /layout -->
 </div><!-- /screen-app -->
+
+<!-- Reference Timetable Format Modal -->
+<div id="reference-modal" class="ref-modal-backdrop" style="display:none;" onclick="if(event.target===this)closeReferenceModal()">
+  <div class="ref-modal-content">
+    <div class="ref-modal-header">
+      <div class="ref-modal-title">📋 Universal Timetable Format Reference</div>
+      <button type="button" class="ref-modal-close" onclick="closeReferenceModal()">&times;</button>
+    </div>
+    <div class="ref-modal-body">
+      <p class="ref-modal-desc">
+        Our analyzer works for <strong>any degree</strong> (B.A., BBA, BCA, B.Tech, B.Com, B.Sc) and <strong>any subjects</strong>. To ensure accurate extraction, your uploaded timetable must follow an academic tabular structure with period columns, day rows, and cell entries (subject, room, teacher):
+      </p>
+      <div class="ref-modal-img-container">
+        <img src="assets/reference_timetable_format.jpg" alt="Academic Timetable Format Example" class="ref-modal-img">
+      </div>
+      <div class="ref-modal-features">
+        <div class="ref-feat-item"><strong>1. Table Grid:</strong> Structured rows &amp; columns (not a plain text list)</div>
+        <div class="ref-feat-item"><strong>2. Period Columns:</strong> Times or Period numbers (Period 1 to 8)</div>
+        <div class="ref-feat-item"><strong>3. Cells:</strong> Subject title, Teacher/Faculty name, Room/Lab</div>
+        <div class="ref-feat-item"><strong>4. Indian College Notation:</strong> Theory/Lab brackets like <code>Th(1-3)</code> or <code>(4-6)</code> are automatically parsed</div>
+      </div>
+    </div>
+    <div class="ref-modal-footer">
+      <button type="button" class="btn-primary" onclick="closeReferenceModal()">Got It, Close</button>
+    </div>
+  </div>
+</div>
 
 <!-- Fullscreen Confetti Canvas -->
 <canvas id="confetti-canvas"></canvas>

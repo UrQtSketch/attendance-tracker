@@ -1010,6 +1010,16 @@ function testImageQuality(img) {
   return { pass: true, width: w, height: h };
 }
 
+window.openReferenceModal = function() {
+  const m = qs('#reference-modal');
+  if (m) m.style.display = 'flex';
+};
+
+window.closeReferenceModal = function() {
+  const m = qs('#reference-modal');
+  if (m) m.style.display = 'none';
+};
+
 function showUploadRejection(missingList, subMsg, category) {
   const rejBox = qs('#tt-rejection-box');
   const titleEl = qs('#rc-main-title');
@@ -1017,28 +1027,39 @@ function showUploadRejection(missingList, subMsg, category) {
   const headEl = qs('#rc-missing-heading');
   const listEl = qs('#rc-missing-list');
   const wrapEl = qs('#rc-missing-wrap');
+  const refBox = qs('#rc-reference-box');
 
   const cat = category || 'validation_failure';
 
-  if (cat === 'service_unavailable') {
+  if (cat === 'incompatible_schema') {
+    if (titleEl) titleEl.textContent = 'Incompatible Timetable Format';
+    if (subEl) subEl.textContent = subMsg || 'Uploaded image is a plain list or lacks academic timetable structure. Timetables must follow an academic table/grid format.';
+    if (wrapEl) wrapEl.style.display = (missingList && missingList.length) ? 'block' : 'none';
+    if (headEl) headEl.textContent = 'Structural schema missing:';
+    if (refBox) refBox.style.display = 'block';
+  } else if (cat === 'service_unavailable') {
     if (titleEl) titleEl.textContent = 'Analysis Service Unavailable';
     if (subEl) subEl.textContent = 'Timetable analysis service is currently unavailable. Please try again.';
     if (wrapEl) wrapEl.style.display = 'none';
+    if (refBox) refBox.style.display = 'none';
   } else if (cat === 'blurry') {
     if (titleEl) titleEl.textContent = 'Image Quality Issue';
     if (subEl) subEl.textContent = subMsg || 'Timetable rejected because the image is unclear or incomplete.';
     if (wrapEl) wrapEl.style.display = (missingList && missingList.length) ? 'block' : 'none';
     if (headEl) headEl.textContent = 'Details:';
+    if (refBox) refBox.style.display = 'none';
   } else if (cat === 'unparseable') {
     if (titleEl) titleEl.textContent = 'Timetable Could Not Be Understood';
     if (subEl) subEl.textContent = 'Timetable could not be reliably understood. Please review the image or use manual entry.';
     if (wrapEl) wrapEl.style.display = 'none';
+    if (refBox) refBox.style.display = 'block';
   } else {
     // validation_failure
     if (titleEl) titleEl.textContent = 'Timetable Rejected';
     if (subEl) subEl.textContent = subMsg || "We couldn't reliably read the complete timetable.";
     if (wrapEl) wrapEl.style.display = 'block';
     if (headEl) headEl.textContent = 'Missing / unclear:';
+    if (refBox) refBox.style.display = 'block';
   }
 
   if (listEl) {
@@ -1092,12 +1113,12 @@ function extractTimetableMetadata(text) {
     }
   }
 
-  // Course / Degree
-  const courseMatch = text.match(/(?:Course|Program|Degree|Dept|Department)?\s*[:\s-]*\b(BCA|B\.?Tech(?:\s+[A-Za-z]+)?|MCA|B\.?Sc(?:\s+[A-Za-z]+)?|B\.?Com(?:\s+[A-Za-z]+)?|BBA|MBA|M\.?Tech|Diploma)\b/i);
+  // Course / Degree (Universal: B.A., BBA, BCA, B.Com, B.Tech, B.Sc, MCA, MBA, M.Com, M.A., M.Sc, etc.)
+  const courseMatch = text.match(/(?:Course|Program|Degree|Dept|Department)?\s*[:\s-]*\b(BBA|BCA|MCA|MBA|Diploma|(?:B|M)\.?(?:A|Com|Sc|Tech)(?:\s+[A-Za-z]+)?\.?)(?!\w)/i);
   if (courseMatch) meta.course = courseMatch[1].trim();
 
-  // Semester
-  const semMatch = text.match(/(?:Semester|Sem)\s*[:\s-]*([0-9IVX]+|(?:1st|2nd|3rd|4th|5th|6th|7th|8th))\b/i);
+  // Semester / Year
+  const semMatch = text.match(/(?:Semester|Sem|Year)\s*[:\s-]*([0-9IVX]+|(?:1st|2nd|3rd|4th|5th|6th|7th|8th))\b/i);
   if (semMatch) meta.semester = semMatch[1].trim();
 
   // Section / Batch
@@ -1122,32 +1143,45 @@ function parseCell(rawCell, dayNum, dayName, timeStr, startTime, endTime, rowInd
   let teacher = null;
   let room = null;
   let type = null;
+  let daysList = dayNum ? [dayNum] : [1];
 
-  // 1. Type (Theory, Lab, Practical, Tutorial)
+  // 1. Day Bracket Notation (e.g. Th(1-3), Lab(4-6), or (1-3))
+  const dayBracketMatch = text.match(/\b(?:Th\+Lab|Th|Lab)?\s*\((\d)\s*-\s*(\d)\)/i);
+  if (dayBracketMatch) {
+    const startD = parseInt(dayBracketMatch[1], 10);
+    const endD = parseInt(dayBracketMatch[2], 10);
+    if (startD >= 1 && endD <= 6 && startD <= endD) {
+      daysList = [];
+      for (let d = startD; d <= endD; d++) daysList.push(d);
+    }
+    text = text.replace(dayBracketMatch[0], ' ');
+  }
+
+  // 2. Type (Theory, Lab, Practical, Tutorial)
   const typeMatch = text.match(/\b(Theory\s*\+\s*Lab|Theory\s*\/\s*Lab|Theory|Lab|Practical|Tutorial|Activity)\b/i);
   if (typeMatch) {
     type = typeMatch[1].trim();
     text = text.replace(typeMatch[0], ' ');
   }
 
-  // 2. Room / Lab (so words like 'Room' don't get caught in teacher names)
+  // 3. Room / Lab (so words like 'Room' don't get caught in teacher names)
   const roomMatch = text.match(/\b(?:Room|Lab|Hall|LT)[-\s]*([0-9A-Za-z]+)\b|\b(R-[0-9A-Za-z]+)\b/i);
   if (roomMatch) {
     room = (roomMatch[0] || '').trim();
     text = text.replace(roomMatch[0], ' ');
   }
 
-  // 3. Subject Code (e.g. CS401, CC201, KCS-501, COM101)
+  // 4. Subject Code (e.g. CS401, CC201, KCS-501, COM101, BBA201, BA101)
   const codeMatch = text.match(/\b([A-Z]{2,5}\s*[-]?\s*[0-9]{2,4}[A-Z]?)\b/);
   if (codeMatch) {
     code = codeMatch[1].replace(/\s+/g, '');
     text = text.replace(codeMatch[0], ' ');
   }
 
-  // 4. Teacher Name (e.g. Dr. Rao, Prof. K. Sharma, Dr. Meenakshi, Ms. Maya, Mr. Verma)
-  const teacherMatch = text.match(/\b((?:Prof\.|Dr\.|Mr\.|Ms\.|Mrs\.|Er\.)\s+(?:[A-Z]\.?\s*)?[A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\b/);
+  // 5. Teacher Name (e.g. Dr. Rao, Prof. K. Sharma, Dr. Meenakshi, Ms. Maya, Mr. Verma)
+  const teacherMatch = text.match(/\b((?:Prof\.|Dr\.|Mr\.|Ms\.|Mrs\.|Er\.)\s+[A-Za-z.\s]+?)(?=\s*\(\d|\s*\(|\s+R-|\s+Room|\s+Lab|\s+Hall|\s*$|[|,])/i);
   if (teacherMatch) {
-    teacher = teacherMatch[1].trim();
+    teacher = teacherMatch[1].trim().replace(/\s*\(\d.*$/, '');
     text = text.replace(teacherMatch[0], ' ');
   } else {
     const parenTeacher = text.match(/\((?:by\s+)?([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\)/);
@@ -1157,7 +1191,7 @@ function parseCell(rawCell, dayNum, dayName, timeStr, startTime, endTime, rowInd
     }
   }
 
-  // 5. Clean up remaining text to get clean Subject Name
+  // 6. Clean up remaining text to get clean Subject Name
   let subject = text
     .replace(/[()[\]{}|]/g, ' ')
     .replace(/[-_:]+/g, ' ')
@@ -1179,13 +1213,20 @@ function parseCell(rawCell, dayNum, dayName, timeStr, startTime, endTime, rowInd
   // Choose icon based on subject
   let icon = '📚';
   const subLower = (subject + ' ' + (code || '')).toLowerCase();
-  if (/python|java|c\+\+|coding|program|software|web|cs\d|it\d|tech/i.test(subLower)) icon = '💻';
+  if (/python|java|c\+\+|coding|program|software|web|cs\d|it\d|tech|computer/i.test(subLower)) icon = '💻';
   else if (/database|dbms|sql|data/i.test(subLower)) icon = '🗄️';
   else if (/math|stat|calculus|algebra/i.test(subLower)) icon = '📐';
   else if (/graphics|design|multimedia/i.test(subLower)) icon = '🎨';
   else if (/network|cloud|cyber|security/i.test(subLower)) icon = '🌐';
   else if (/physics|chem|science|electronic/i.test(subLower)) icon = '🔬';
-  else if (/commerce|account|finance|eco|business/i.test(subLower)) icon = '📊';
+  else if (/commerce|account|finance|tax|banking/i.test(subLower)) icon = '📊';
+  else if (/business|marketing|management|hrm|hr\b|org/i.test(subLower)) icon = '💼';
+  else if (/english|hindi|language|literature|communication/i.test(subLower)) icon = '📖';
+  else if (/history|heritage|culture|archaeology/i.test(subLower)) icon = '🏛️';
+  else if (/economics|economy|macro|micro/i.test(subLower)) icon = '📈';
+  else if (/sociology|society|social/i.test(subLower)) icon = '👥';
+  else if (/political|polity|constitution|civics/i.test(subLower)) icon = '⚖️';
+  else if (/philosophy|ethics|logic/i.test(subLower)) icon = '💭';
 
   return {
     subject,
@@ -1193,8 +1234,8 @@ function parseCell(rawCell, dayNum, dayName, timeStr, startTime, endTime, rowInd
     teacher: teacher || null,
     room: room || null,
     type: type || 'Theory',
-    days: [dayNum],
-    day: dayName,
+    days: daysList,
+    day: dayName || (daysList.length > 0 ? DAY_NAMES[daysList[0]] : 'Monday'),
     startTime: startTime || null,
     endTime: endTime || null,
     time: timeStr || (startTime ? `${startTime} - ${endTime}` : null),
@@ -1203,10 +1244,67 @@ function parseCell(rawCell, dayNum, dayName, timeStr, startTime, endTime, rowInd
   };
 }
 
+function isInformalPlainList(rawText) {
+  const lines = (rawText || '').split('\n').map(l => l.trim()).filter(Boolean);
+  if (lines.length === 0) return false;
+
+  let dayListLineCount = 0;
+  let hasAnyTimeOrPeriod = false;
+  let hasAnyFacultyOrRoom = false;
+  let hasGridDelimiters = false;
+
+  const timeRegex = /(\d{1,2}[:.]\d{2}|\bperiod\b|\bpd\b|\btime\b|\bam\b|\bpm\b|\(\d\s*-\s*\d\))/i;
+  const facultyRoomRegex = /\b(?:Dr\.|Prof\.|Mr\.|Ms\.|Mrs\.|Room|Lab|Hall|LT|R-\d+)\b/i;
+
+  for (const line of lines) {
+    if (timeRegex.test(line)) hasAnyTimeOrPeriod = true;
+    if (facultyRoomRegex.test(line)) hasAnyFacultyOrRoom = true;
+    if (line.includes('|') || line.includes('\t')) hasGridDelimiters = true;
+
+    // Line like "Monday: English" or "Monday - Maths"
+    const simpleDayMatch = line.match(/^(?:mon(?:day)?|tue(?:sday)?|wed(?:nesday)?|thu(?:rsday)?|fri(?:day)?|sat(?:urday)?)\s*[:\-]\s*[A-Za-z\s]+$/i);
+    if (simpleDayMatch) {
+      dayListLineCount++;
+    }
+  }
+
+  // If 3 or more lines are plain "Day: Subject" and no timings/periods, no faculty/rooms, and no grid delimiters
+  if (dayListLineCount >= 3 && !hasAnyTimeOrPeriod && !hasGridDelimiters) {
+    return true;
+  }
+  return false;
+}
+
+const DEFAULT_PERIOD_TIMES = [
+  { start: '09:30', end: '10:30', raw: '09:30 - 10:30' },
+  { start: '10:30', end: '11:30', raw: '10:30 - 11:30' },
+  { start: '11:30', end: '12:30', raw: '11:30 - 12:30' },
+  { start: '12:30', end: '01:30', raw: '12:30 - 01:30' },
+  { start: '01:30', end: '02:30', raw: '01:30 - 02:30' },
+  { start: '02:30', end: '03:30', raw: '02:30 - 03:30' },
+  { start: '03:30', end: '04:30', raw: '03:30 - 04:30' },
+  { start: '04:30', end: '05:30', raw: '04:30 - 05:30' }
+];
+
 function parseTimetableFromOCR(rawText, ocrData, fname) {
   const metadata = extractTimetableMetadata(rawText);
   const lines = (rawText || '').split('\n').map(l => l.trim()).filter(Boolean);
   const classes = [];
+
+  // Plain informal list validation: REJECT with incompatible_schema and show reference template
+  if (isInformalPlainList(rawText)) {
+    return {
+      success: false,
+      category: 'incompatible_schema',
+      error: 'Incompatible Timetable Format',
+      subMsg: 'Uploaded image is a plain list without academic timetable structure. Timetable must follow an academic table/grid format with periods, days, and class details.',
+      missing: [
+        'Table Grid Format (Timetable must have rows and columns, not a simple text list)',
+        'Period / Time Slots (Period 1 to 8 or scheduled start/end times)',
+        'Structured Cell Details (Each class cell should include Subject, Faculty/Teacher, and Room/Lab)'
+      ]
+    };
+  }
 
   // Test Fixture Hooks for strict test assertions
   const lowerFname = (fname || '').toLowerCase();
@@ -1276,7 +1374,59 @@ function parseTimetableFromOCR(rawText, ocrData, fname) {
     }
   }
 
-  // Strategy 1: Grid Table format with recognized timeSlots (Header = Times, Rows = Days)
+  // Also check for Period column headers: e.g. Period 1 | Period 2 | Period 3
+  if (timeSlots.length < 2) {
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const parts = line.split(/[|\t]/).map(p => p.trim()).filter(Boolean);
+      const periodParts = parts.filter(p => /\b(?:period|pd|slot|hour|p)\s*[1-8IVX]/i.test(p));
+      if (periodParts.length >= 2) {
+        const slots = [];
+        let pIdx = 0;
+        for (let c = 0; c < parts.length; c++) {
+          const part = parts[c];
+          if (/\b(?:day|time|date|s\.?no)\b/i.test(part) && c === 0) continue;
+
+          // Check if explicit time is in part e.g. Period 1 (09:30-10:30)
+          const tmMatch = part.match(/(\d{1,2}[:.]\d{2})\s*(?:am|pm)?\s*(?:-|to|–)\s*(\d{1,2}[:.]\d{2})/i);
+          if (tmMatch) {
+            slots.push({
+              raw: tmMatch[0],
+              start: tmMatch[1].replace('.', ':').padStart(5, '0'),
+              end: tmMatch[2].replace('.', ':').padStart(5, '0')
+            });
+          } else {
+            const def = DEFAULT_PERIOD_TIMES[pIdx % DEFAULT_PERIOD_TIMES.length];
+            slots.push({ ...def });
+          }
+          pIdx++;
+        }
+        if (slots.length >= 2) {
+          timeSlots = slots;
+          headerLineIndex = i;
+          break;
+        }
+      }
+    }
+  }
+
+  // Helper to push occurrences (handles multiple days if bracket notation was used)
+  function addParsedClass(parsed) {
+    if (!parsed) return;
+    if (Array.isArray(parsed.days) && parsed.days.length > 1) {
+      parsed.days.forEach(d => {
+        classes.push({
+          ...parsed,
+          days: [d],
+          day: DAY_NAMES[d]
+        });
+      });
+    } else {
+      classes.push(parsed);
+    }
+  }
+
+  // Strategy 1: Grid Table format with recognized timeSlots (Header = Times/Periods, Rows = Days)
   if (timeSlots.length >= 2 && headerLineIndex !== -1) {
     for (let i = headerLineIndex + 1; i < lines.length; i++) {
       const line = lines[i];
@@ -1287,14 +1437,14 @@ function parseTimetableFromOCR(rawText, ocrData, fname) {
           for (let c = 1; c < parts.length && c - 1 < timeSlots.length; c++) {
             const slot = timeSlots[c - 1];
             const parsed = parseCell(parts[c], dayCheck.num, dayCheck.name, slot.raw, slot.start, slot.end, i, c);
-            if (parsed) classes.push(parsed);
+            if (parsed) addParsedClass(parsed);
           }
         }
       }
     }
   }
 
-  // Strategy 3: Transposed Grid Table (Header = Days, Rows = Times)
+  // Strategy 3: Transposed Grid Table (Header = Days, Rows = Times/Periods)
   if (classes.length === 0) {
     let dayHeaders = [];
     let dayHeaderIndex = -1;
@@ -1316,17 +1466,15 @@ function parseTimetableFromOCR(rawText, ocrData, fname) {
         const parts = line.split(/[|\t]/).map(p => p.trim()).filter(Boolean);
         if (parts.length >= 2) {
           const timeMatch = parts[0].match(/(\d{1,2}[:.]\d{2})\s*(?:am|pm)?\s*(?:-|to|–)\s*(\d{1,2}[:.]\d{2})\s*(?:am|pm)?/i);
-          if (timeMatch) {
-            const startTime = timeMatch[1].replace('.', ':').padStart(5, '0');
-            const endTime = timeMatch[2].replace('.', ':').padStart(5, '0');
-            const timeStr = `${startTime} - ${endTime}`;
+          const startTime = timeMatch ? timeMatch[1].replace('.', ':').padStart(5, '0') : '09:30';
+          const endTime = timeMatch ? timeMatch[2].replace('.', ':').padStart(5, '0') : '10:30';
+          const timeStr = timeMatch ? `${startTime} - ${endTime}` : '09:30 - 10:30';
 
-            for (let c = 1; c < parts.length && c < dayHeaders.length; c++) {
-              const day = dayHeaders[c];
-              if (day) {
-                const parsed = parseCell(parts[c], day.num, day.name, timeStr, startTime, endTime, i, c);
-                if (parsed) classes.push(parsed);
-              }
+          for (let c = 1; c < parts.length && c < dayHeaders.length; c++) {
+            const day = dayHeaders[c];
+            if (day) {
+              const parsed = parseCell(parts[c], day.num, day.name, timeStr, startTime, endTime, i, c);
+              if (parsed) addParsedClass(parsed);
             }
           }
         }
@@ -1334,7 +1482,7 @@ function parseTimetableFromOCR(rawText, ocrData, fname) {
     }
   }
 
-  // Strategy 2: Line-by-line Agenda / List format
+  // Strategy 2: Line-by-line Agenda / List format with Times
   if (classes.length === 0) {
     let currentDay = null;
 
@@ -1362,7 +1510,7 @@ function parseTimetableFromOCR(rawText, ocrData, fname) {
           }
           cellContent = cellContent.trim();
           const parsed = parseCell(cellContent, lineDay.num, lineDay.name, timeStr, startTime, endTime, i, 0);
-          if (parsed) classes.push(parsed);
+          if (parsed) addParsedClass(parsed);
         }
       }
     }
