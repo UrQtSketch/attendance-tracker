@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=3.6">
+  <link rel="stylesheet" href="style.css?v=3.7">
 </head>
 <body>
 
@@ -26,7 +26,54 @@
   <div class="login-wrap">
     <div class="login-layout-flex">
 
-      <!-- Left / Main: Login Card -->
+      <!-- Left: Side Animated Theme Visual -->
+      <div class="login-theme-showcase showcase-left" id="login-theme-showcase-left" data-theme="cosmic">
+        <div class="showcase-glow-backdrop"></div>
+
+        <!-- Visual Animated Portal with Orbit Rings and Core -->
+        <div class="showcase-portal">
+          <div class="showcase-ring-outer"></div>
+          <div class="showcase-ring-mid"></div>
+          <div class="showcase-ring-inner"></div>
+          
+          <div class="showcase-core-sphere">
+            <div class="showcase-core-glow"></div>
+            <span class="showcase-core-icon">🌌</span>
+          </div>
+
+          <!-- Floating Ambient Theme Particles -->
+          <span class="sc-part sc-p1"></span>
+          <span class="sc-part sc-p2"></span>
+          <span class="sc-part sc-p3"></span>
+          <span class="sc-part sc-p4"></span>
+          <span class="sc-part sc-p5"></span>
+        </div>
+
+        <!-- Theme Information & Dynamic Color Swatches -->
+        <div class="showcase-content">
+          <div class="showcase-pill">
+            <span class="showcase-pulse-dot"></span>
+            <span class="showcase-pill-title">Cosmic Midnight Theme</span>
+          </div>
+          <h3 class="showcase-name">Deep Nebula &amp; Starlight</h3>
+          <p class="showcase-desc">
+            Glowing deep space violet and cosmic indigo designed for late-night focus with zero eye strain.
+          </p>
+
+          <div class="showcase-palette">
+            <span class="sc-color sc-c1" title="Primary Color"></span>
+            <span class="sc-color sc-c2" title="Accent Color"></span>
+            <span class="sc-color sc-c3" title="Glow Color"></span>
+          </div>
+
+          <div class="showcase-hint">
+            <span>✨ Live Dynamic Theme Preview</span>
+          </div>
+        </div>
+
+      </div><!-- /login-theme-showcase-left -->
+
+      <!-- Center: Login Card -->
       <div class="login-card">
 
         <!-- Step Indicator -->
@@ -85,7 +132,7 @@
       </div><!-- /login-card -->
 
       <!-- Right: Side Animated Theme Visual (Active until user enters name & continues) -->
-      <div class="login-theme-showcase" id="login-theme-showcase" data-theme="cosmic">
+      <div class="login-theme-showcase showcase-right" id="login-theme-showcase" data-theme="cosmic">
         <div class="showcase-glow-backdrop"></div>
 
         <!-- Visual Animated Portal with Orbit Rings and Core -->
@@ -111,7 +158,7 @@
         <div class="showcase-content">
           <div class="showcase-pill" id="showcase-pill">
             <span class="showcase-pulse-dot"></span>
-            <span id="showcase-pill-title">Cosmic Midnight Theme</span>
+            <span id="showcase-pill-title" class="showcase-pill-title">Cosmic Midnight Theme</span>
           </div>
           <h3 class="showcase-name" id="showcase-name">Deep Nebula &amp; Starlight</h3>
           <p class="showcase-desc" id="showcase-desc">
@@ -122,7 +169,6 @@
             <span class="sc-color sc-c1" id="sc-c1" title="Primary Color"></span>
             <span class="sc-color sc-c2" id="sc-c2" title="Accent Color"></span>
             <span class="sc-color sc-c3" id="sc-c3" title="Glow Color"></span>
-            <span class="sc-color-label" id="sc-color-label">#6366f1 &bull; #a855f7 &bull; #06b6d4</span>
           </div>
 
           <div class="showcase-hint">
@@ -1141,6 +1187,6 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
 <!-- Tesseract OCR Engine (Client-Side) -->
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-<script src="app.js?v=3.6"></script>
+<script src="app.js?v=3.7"></script>
 </body>
 </html>

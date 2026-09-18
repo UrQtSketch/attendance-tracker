@@ -134,20 +134,20 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); 
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 36px;
+  gap: 24px;
   width: 100%;
-  max-width: 960px;
+  max-width: 1260px;
   margin: 0 auto;
 }
 
 .login-card {
   width: 100%;
-  max-width: 450px;
-  flex: 1 1 420px;
+  max-width: 440px;
+  flex: 1 1 400px;
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.10);
   border-radius: 28px;
-  padding: 40px 36px;
+  padding: 38px 34px;
   backdrop-filter: blur(24px);
   box-shadow: 0 24px 80px rgba(0,0,0,0.5);
   text-align: center;
@@ -159,12 +159,12 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); 
 /* ── SIDE THEME ANIMATION SHOWCASE ────────────────────────────── */
 .login-theme-showcase {
   width: 100%;
-  max-width: 400px;
-  flex: 1 1 360px;
+  max-width: 320px;
+  flex: 1 1 280px;
   background: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
   border: 1px solid var(--border);
   border-radius: 28px;
-  padding: 34px 28px;
+  padding: 30px 22px;
   backdrop-filter: blur(24px);
   box-shadow: 0 24px 80px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.1);
   display: flex;
@@ -202,6 +202,7 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); 
   align-items: center;
   justify-content: center;
   margin-bottom: 24px;
+  animation: portalBreathe 3.6s ease-in-out infinite;
 }
 
 .showcase-ring-outer {
@@ -369,24 +370,35 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); 
 }
 
 /* Keyframe Animations */
+@keyframes portalBreathe {
+  0%, 100% {
+    transform: scale(0.85);
+  }
+  50% {
+    transform: scale(1.20);
+  }
+}
+
 @keyframes orbitSpin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% { transform: rotate(0deg) scale(0.92); }
+  50% { transform: rotate(180deg) scale(1.12); }
+  100% { transform: rotate(360deg) scale(0.92); }
 }
 
 @keyframes orbitSpinReverse {
-  0% { transform: rotate(360deg); }
-  100% { transform: rotate(0deg); }
+  0% { transform: rotate(360deg) scale(1.12); }
+  50% { transform: rotate(180deg) scale(0.92); }
+  100% { transform: rotate(0deg) scale(1.12); }
 }
 
 @keyframes spherePulse {
-  0%, 100% { transform: scale(1); filter: brightness(1); }
-  50% { transform: scale(1.08); filter: brightness(1.25); }
+  0%, 100% { transform: scale(0.85); filter: brightness(0.95); box-shadow: 0 0 20px var(--glow-primary); }
+  50% { transform: scale(1.24); filter: brightness(1.35); box-shadow: 0 0 55px var(--glow-primary); }
 }
 
 @keyframes floatIcon {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
+  0%, 100% { transform: translateY(0) scale(0.94); }
+  50% { transform: translateY(-5px) scale(1.12); }
 }
 
 @keyframes floatParticle {
@@ -400,7 +412,19 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); 
 }
 
 /* Responsive adjustment for login flex layout */
+@media (max-width: 1120px) {
+  .showcase-left {
+    display: none !important;
+  }
+  .login-layout-flex {
+    max-width: 880px;
+  }
+}
+
 @media (max-width: 860px) {
+  .showcase-left {
+    display: none !important;
+  }
   .login-layout-flex {
     flex-direction: column;
     gap: 20px;

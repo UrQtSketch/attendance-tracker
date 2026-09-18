@@ -567,34 +567,37 @@ window.setTheme = function(themeName) {
 };
 
 function updateLoginThemeShowcase(t) {
-  const showcase = qs('#login-theme-showcase');
-  if (!showcase) return;
+  const showcases = qsa('.login-theme-showcase');
+  if (!showcases || !showcases.length) return;
 
-  showcase.dataset.theme = t;
   const meta = THEME_SHOWCASE_META[t] || THEME_SHOWCASE_META.cosmic;
 
-  const iconEl = qs('#showcase-core-icon');
-  if (iconEl) iconEl.textContent = meta.icon;
+  showcases.forEach(showcase => {
+    showcase.dataset.theme = t;
 
-  const pillTitle = qs('#showcase-pill-title');
-  if (pillTitle) pillTitle.textContent = meta.pill;
+    const iconEl = showcase.querySelector('.showcase-core-icon');
+    if (iconEl) iconEl.textContent = meta.icon;
 
-  const nameEl = qs('#showcase-name');
-  if (nameEl) nameEl.textContent = meta.name;
+    const pillTitle = showcase.querySelector('.showcase-pill-title') || showcase.querySelector('#showcase-pill-title');
+    if (pillTitle) pillTitle.textContent = meta.pill;
 
-  const descEl = qs('#showcase-desc');
-  if (descEl) descEl.textContent = meta.desc;
+    const nameEl = showcase.querySelector('.showcase-name') || showcase.querySelector('#showcase-name');
+    if (nameEl) nameEl.textContent = meta.name;
 
-  const labelEl = qs('#sc-color-label');
-  if (labelEl) labelEl.textContent = meta.label;
+    const descEl = showcase.querySelector('.showcase-desc') || showcase.querySelector('#showcase-desc');
+    if (descEl) descEl.textContent = meta.desc;
 
-  const c1 = qs('#sc-c1'); if (c1) c1.style.background = meta.colors[0];
-  const c2 = qs('#sc-c2'); if (c2) c2.style.background = meta.colors[1];
-  const c3 = qs('#sc-c3'); if (c3) c3.style.background = meta.colors[2];
+    const labelEl = showcase.querySelector('.sc-color-label') || showcase.querySelector('#sc-color-label');
+    if (labelEl) labelEl.textContent = meta.label;
 
-  showcase.style.animation = 'none';
-  showcase.offsetHeight;
-  showcase.style.animation = 'fadeUp 0.4s ease';
+    const c1 = showcase.querySelector('.sc-c1'); if (c1) c1.style.background = meta.colors[0];
+    const c2 = showcase.querySelector('.sc-c2'); if (c2) c2.style.background = meta.colors[1];
+    const c3 = showcase.querySelector('.sc-c3'); if (c3) c3.style.background = meta.colors[2];
+
+    showcase.style.animation = 'none';
+    showcase.offsetHeight;
+    showcase.style.animation = 'fadeUp 0.4s ease';
+  });
 }
 
 // ── 8. HELPERS ───────────────────────────────────────────────────
