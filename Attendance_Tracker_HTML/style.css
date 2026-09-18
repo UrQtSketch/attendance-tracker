@@ -369,6 +369,28 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); 
 .btn-start:disabled { opacity:0.4;cursor:not-allowed;box-shadow:none; }
 .btn-start:not(:disabled):hover { transform:translateY(-2px);box-shadow:0 12px 32px rgba(99,102,241,0.55); }
 
+.btn-skip-setup {
+  display: block;
+  width: 100%;
+  max-width: 740px;
+  margin: 8px auto 0;
+  background: transparent;
+  border: 1px dashed var(--border2);
+  color: var(--text3);
+  padding: 10px;
+  border-radius: 12px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s;
+}
+.btn-skip-setup:hover {
+  background: var(--surface2);
+  color: var(--text);
+  border-color: var(--blue2);
+}
+
 /* ════════════════════════════════════════════════════════════════
    APP SCREEN LAYOUT
    ════════════════════════════════════════════════════════════════ */

@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=3.4">
+  <link rel="stylesheet" href="style.css?v=3.5">
 </head>
 <body>
 
@@ -163,7 +163,8 @@
 
       <!-- Start tracking -->
       <div class="setup-footer">
-        <button id="start-btn" class="btn-start" disabled>Add at least one class first</button>
+        <button id="start-btn" class="btn-start" disabled>➕ Add your classes above to continue</button>
+        <button type="button" id="skip-btn" class="btn-skip-setup" onclick="startTracking()">⚡ Skip &amp; Go Directly to Website (Add Classes Later)</button>
       </div>
 
     </div>
@@ -589,6 +590,6 @@
 <!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
-<script src="app.js?v=3.4"></script>
+<script src="app.js?v=3.5"></script>
 </body>
 </html>

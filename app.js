@@ -583,13 +583,25 @@ function renderExistingUsers(){
 }
 
 // Avatar tap on login screen → fast-path to app (skip setup for returning user)
-window.loginAs=async function(u){
+window.loginAs = function(u){
   if(!u||!u.trim()) return;
-  UserMgr.set(u.trim());
-  if(db){
-    await syncFromFirebase(u.trim());
+  const username = u.trim();
+  UserMgr.set(username);
+  const existingTT = Store.getTT() || [];
+  if (existingTT.length > 0) {
+    playAudio('click');
+    bootApp(existingTT);
+  } else {
+    checkAuth();
   }
-  checkAuth();
+  if (db) {
+    syncFromFirebase(username).then(() => {
+      const cloudTT = Store.getTT() || [];
+      if (cloudTT.length > 0 && (!TIMETABLE || !TIMETABLE.length)) {
+        bootApp(cloudTT);
+      }
+    }).catch(e => console.warn(e));
+  }
 };
 
 // 1-Click Instant Demo Mode (Showcase all features immediately)
@@ -620,27 +632,51 @@ window.startDemoMode = function() {
   bootApp(App.pendingTT);
 };
 
-// "Continue" button → ALWAYS show setup/Add-Classes screen after login
-// (pre-populated for returning users, empty for new users)
-async function doLogin(){
-  const inp=qs('#login-inp'), username=(inp.value||'').trim();
-  if(!username||username.length<2){ shake('#login-inp'); inp.focus(); return; }
+// "Continue" button:
+// 1. Enter name -> Continue page disappears INSTANTLY
+// 2. If new user -> Show "Add Your Classes" screen according to user's schedule
+// 3. If returning user with classes -> Direct to website dashboard
+// 4. Background cloud sync without any UI delay
+function doLogin(){
+  const inp = qs('#login-inp');
+  const username = (inp ? inp.value : '').trim();
+  if(!username || username.length < 2){
+    shake('#login-inp');
+    if (inp) inp.focus();
+    return;
+  }
+
   UserMgr.set(username);
+  const existingTT = Store.getTT() || [];
+
+  if (existingTT.length > 0) {
+    // Returning user with classes already saved -> direct to website
+    playAudio('celebrate');
+    bootApp(existingTT);
+  } else {
+    // New user -> Immediately show "Add Your Classes" according to user
+    App.pendingTT = [];
+    const greet = qs('#setup-greeting');
+    if (greet) {
+      greet.innerHTML = `👋 Hey <strong>${username}</strong>! Add your classes according to your college schedule below, then click Start Tracking to go directly to the website.`;
+    }
+    playAudio('click');
+    showScreen('setup');
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    initSetup();
+  }
+
+  // Non-blocking cloud sync in background
   if(db){
-    await syncFromFirebase(username);
+    syncFromFirebase(username).then(() => {
+      const cloudTT = Store.getTT() || [];
+      if (cloudTT.length > 0 && qs('#screen-setup') && qs('#screen-setup').classList.contains('active')) {
+        App.pendingTT = [...cloudTT];
+        renderSetupList();
+        updateStartBtn();
+      }
+    }).catch(err => console.warn('Background sync:', err));
   }
-  // Pre-load existing timetable if this user has one, otherwise start empty
-  App.pendingTT = [...(Store.getTT() || [])];
-  // Update setup greeting with the user's name
-  const greet=qs('#setup-greeting');
-  const existing=App.pendingTT.length>0;
-  if(greet){
-    greet.innerHTML=existing
-      ? `👋 Welcome back, <strong>${username}</strong>! Here are your saved classes. Edit or click <em>Start Tracking</em>.`
-      : `👋 Hey <strong>${username}</strong>! Let's add your college timetable to get started.`;
-  }
-  showScreen('setup');
-  initSetup();
 }
 
 // ── 11. TIMETABLE SETUP ──────────────────────────────────────────
@@ -689,8 +725,9 @@ function addClassEntry(){
     days,
   };
   App.pendingTT.push(entry);
-  qs('#f-teacher').value=''; qs('#f-room').value='';
+  qs('#f-subject').value=''; qs('#f-code').value=''; qs('#f-teacher').value=''; qs('#f-room').value='';
   document.querySelectorAll('#f-days input').forEach(el=>el.checked=false);
+  playAudio('click');
   renderSetupList(); updateStartBtn();
   qs('#f-subject').focus();
 }
@@ -722,7 +759,7 @@ function updateStartBtn(){
   const btn=qs('#start-btn'); if(!btn) return;
   const n=App.pendingTT.length;
   btn.disabled=n===0;
-  btn.textContent=n?`🚀 Start Tracking (${n} class${n>1?'es':''}) →`:'Add at least one class first';
+  btn.textContent=n?`🚀 Save & Go to Website (${n} class${n>1?'es':''}) →`:'➕ Add your classes above to continue';
 }
 
 window.loadPreset=function(){
@@ -732,12 +769,14 @@ window.loadPreset=function(){
     subjectKey:sanitizeKey(e.subject+'_'+(e.code||'')),
     color:PALETTE[i%PALETTE.length],
   }));
+  playAudio('click');
   renderSetupList(); updateStartBtn();
 };
 
 function startTracking(){
-  if(!App.pendingTT.length) return;
   Store.saveTT(App.pendingTT);
+  playAudio('celebrate');
+  triggerConfetti();
   bootApp(App.pendingTT);
 }
 
