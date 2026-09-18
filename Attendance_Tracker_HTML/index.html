@@ -24,62 +24,115 @@
      ══════════════════════════════════════════════════════════════ -->
 <div id="screen-login" class="screen active">
   <div class="login-wrap">
-    <div class="login-card">
+    <div class="login-layout-flex">
 
-      <!-- Step Indicator -->
-      <div class="onboard-progress">
-        <div class="onboard-step active"><span>1</span> Name</div>
-        <span class="onboard-sep">&rarr;</span>
-        <div class="onboard-step"><span>2</span> Course</div>
-        <span class="onboard-sep">&rarr;</span>
-        <div class="onboard-step"><span>3</span> Timetable</div>
-        <span class="onboard-sep">&rarr;</span>
-        <div class="onboard-step"><span>4</span> Review</div>
-      </div>
+      <!-- Left / Main: Login Card -->
+      <div class="login-card">
 
-      <!-- Top Theme & Cloud Bar -->
-      <div class="login-theme-bar">
-        <span class="lt-label">🎨 Theme:</span>
-        <div class="theme-pills">
-          <button class="theme-pill-btn theme-pill-cosmic active" title="Cosmic Midnight" onclick="setTheme('cosmic')"></button>
-          <button class="theme-pill-btn theme-pill-emerald" title="Emerald Obsidian" onclick="setTheme('emerald')"></button>
-          <button class="theme-pill-btn theme-pill-sunset" title="Sunset Velvet" onclick="setTheme('sunset')"></button>
-          <button class="theme-pill-btn theme-pill-oled" title="Pure OLED" onclick="setTheme('oled')"></button>
+        <!-- Step Indicator -->
+        <div class="onboard-progress">
+          <div class="onboard-step active"><span>1</span> Name</div>
+          <span class="onboard-sep">&rarr;</span>
+          <div class="onboard-step"><span>2</span> Course</div>
+          <span class="onboard-sep">&rarr;</span>
+          <div class="onboard-step"><span>3</span> Timetable</div>
+          <span class="onboard-sep">&rarr;</span>
+          <div class="onboard-step"><span>4</span> Review</div>
         </div>
-      </div>
 
-      <!-- Logo -->
-      <div class="login-logo">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
-          <path d="M6 12v5c3 3 9 3 12 0v-5"/>
-        </svg>
-      </div>
+        <!-- Top Theme & Cloud Bar -->
+        <div class="login-theme-bar">
+          <span class="lt-label">🎨 Theme:</span>
+          <div class="theme-pills">
+            <button class="theme-pill-btn theme-pill-cosmic active" title="Cosmic Midnight" onclick="setTheme('cosmic')"></button>
+            <button class="theme-pill-btn theme-pill-emerald" title="Emerald Obsidian" onclick="setTheme('emerald')"></button>
+            <button class="theme-pill-btn theme-pill-sunset" title="Sunset Velvet" onclick="setTheme('sunset')"></button>
+            <button class="theme-pill-btn theme-pill-oled" title="Pure OLED" onclick="setTheme('oled')"></button>
+          </div>
+        </div>
 
-      <h1 class="login-title">Your Attendance Tracker</h1>
-      <p class="login-tagline">Track your college attendance — smart &amp; simple</p>
+        <!-- Logo -->
+        <div class="login-logo">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+            <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+          </svg>
+        </div>
 
-      <!-- Feature Badges -->
-      <div class="login-features">
-        <span>⚡ Bunkometer AI</span>
-        <span>☁️ Cloud Firestore</span>
-        <span>🗓️ Weekly Matrix</span>
-      </div>
+        <h1 class="login-title">Your Attendance Tracker</h1>
+        <p class="login-tagline">Track your college attendance — smart &amp; simple</p>
 
-      <!-- Input -->
-      <div class="login-form">
-        <label class="login-label" for="login-inp">Enter your name to continue</label>
-        <input id="login-inp" class="login-inp" type="text" placeholder="e.g. Rahul, Priya, Amit..." maxlength="30" autocomplete="off" spellcheck="false">
-        <button id="login-btn" class="login-btn">Continue &rarr;</button>
+        <!-- Feature Badges -->
+        <div class="login-features">
+          <span>⚡ Bunkometer AI</span>
+          <span>☁️ Cloud Firestore</span>
+          <span>🗓️ Weekly Matrix</span>
+        </div>
 
-        <div class="login-or"><span>OR</span></div>
-        <button type="button" class="login-demo-btn" onclick="startDemoMode()">🚀 1-Click Live Demo (Explore All Features)</button>
-      </div>
+        <!-- Input -->
+        <div class="login-form">
+          <label class="login-label" for="login-inp">Enter your name to continue</label>
+          <input id="login-inp" class="login-inp" type="text" placeholder="e.g. Rahul, Priya, Amit..." maxlength="30" autocomplete="off" spellcheck="false">
+          <button id="login-btn" class="login-btn">Continue &rarr;</button>
 
-      <!-- Existing users -->
-      <div id="existing-users"></div>
+          <div class="login-or"><span>OR</span></div>
+          <button type="button" class="login-demo-btn" onclick="startDemoMode()">🚀 1-Click Live Demo (Explore All Features)</button>
+        </div>
 
-    </div>
+        <!-- Existing users -->
+        <div id="existing-users"></div>
+
+      </div><!-- /login-card -->
+
+      <!-- Right: Side Animated Theme Visual (Active until user enters name & continues) -->
+      <div class="login-theme-showcase" id="login-theme-showcase" data-theme="cosmic">
+        <div class="showcase-glow-backdrop"></div>
+
+        <!-- Visual Animated Portal with Orbit Rings and Core -->
+        <div class="showcase-portal">
+          <div class="showcase-ring-outer"></div>
+          <div class="showcase-ring-mid"></div>
+          <div class="showcase-ring-inner"></div>
+          
+          <div class="showcase-core-sphere">
+            <div class="showcase-core-glow"></div>
+            <span class="showcase-core-icon" id="showcase-core-icon">🌌</span>
+          </div>
+
+          <!-- Floating Ambient Theme Particles -->
+          <span class="sc-part sc-p1"></span>
+          <span class="sc-part sc-p2"></span>
+          <span class="sc-part sc-p3"></span>
+          <span class="sc-part sc-p4"></span>
+          <span class="sc-part sc-p5"></span>
+        </div>
+
+        <!-- Theme Information & Dynamic Color Swatches -->
+        <div class="showcase-content">
+          <div class="showcase-pill" id="showcase-pill">
+            <span class="showcase-pulse-dot"></span>
+            <span id="showcase-pill-title">Cosmic Midnight Theme</span>
+          </div>
+          <h3 class="showcase-name" id="showcase-name">Deep Nebula &amp; Starlight</h3>
+          <p class="showcase-desc" id="showcase-desc">
+            Glowing deep space violet and cosmic indigo designed for late-night focus with zero eye strain.
+          </p>
+
+          <div class="showcase-palette">
+            <span class="sc-color sc-c1" id="sc-c1" title="Primary Color"></span>
+            <span class="sc-color sc-c2" id="sc-c2" title="Accent Color"></span>
+            <span class="sc-color sc-c3" id="sc-c3" title="Glow Color"></span>
+            <span class="sc-color-label" id="sc-color-label">#6366f1 &bull; #a855f7 &bull; #06b6d4</span>
+          </div>
+
+          <div class="showcase-hint">
+            <span>✨ Tap any of the 4 theme buttons to switch colors live</span>
+          </div>
+        </div>
+
+      </div><!-- /login-theme-showcase -->
+
+    </div><!-- /login-layout-flex -->
   </div>
 </div>
 
@@ -590,6 +643,7 @@
       <button class="nav-btn" data-s="subjects"><span class="nav-icon">📊</span><span>Subjects</span></button>
       <button class="nav-btn" data-s="history"><span class="nav-icon">📜</span><span>History</span></button>
       <button class="nav-btn" data-s="analytics"><span class="nav-icon">📈</span><span>Analytics</span></button>
+      <button class="nav-btn" data-s="friends"><span class="nav-icon">🎉</span><span>Fun with Friends</span></button>
       <button class="nav-btn" data-s="settings"><span class="nav-icon">⚙️</span><span>Settings</span></button>
     </nav>
 
@@ -894,6 +948,146 @@
         </div>
       </section>
 
+      <!-- FUN WITH FRIENDS -->
+      <section id="s-friends" class="section">
+        <div class="friends-wrapper">
+
+          <!-- Header Banner -->
+          <div class="friends-header-card">
+            <div class="friends-badge">🎉 Friends Attendance Alert</div>
+            <h2 class="friends-title"><span>👥</span> Fun with Friends — College Bunk Reminder</h2>
+            <p class="friends-subtitle">
+              Dost college nahi aa raha ya attendance 75% ke neeche chali gayi hai? Ek click me WhatsApp ya SMS par funny college roast ya strict official attendance warning bhejo!
+            </p>
+          </div>
+
+          <!-- Main Grid -->
+          <div class="friends-main-grid">
+
+            <!-- Left: Settings & Input Card -->
+            <div class="friends-card">
+              <div class="fc-title">
+                <span>🎯 Message Settings</span>
+                <span style="font-size:12px;font-weight:600;color:var(--blue2);">Select Tone</span>
+              </div>
+
+              <!-- Tone Selector: Fun vs Serious vs Surprise -->
+              <div class="tone-selector">
+                <button type="button" class="tone-btn active" id="tone-fun" onclick="setFriendTone('fun')">
+                  <span style="font-size:18px;">🎭</span>
+                  <span>Fun / Roast</span>
+                </button>
+                <button type="button" class="tone-btn tone-serious" id="tone-serious" onclick="setFriendTone('serious')">
+                  <span style="font-size:18px;">🚨</span>
+                  <span>Serious Notice</span>
+                </button>
+                <button type="button" class="tone-btn" id="tone-surprise" onclick="setFriendTone('surprise')">
+                  <span style="font-size:18px;">🎲</span>
+                  <span>Surprise Shuffle</span>
+                </button>
+              </div>
+
+              <!-- Friend's Name -->
+              <div class="friends-field">
+                <label for="friend-name-inp">Friend's Name (Optional)</label>
+                <input type="text" id="friend-name-inp" class="friends-input" placeholder="e.g. Rahul, Sneha, Aman..." maxlength="30" autocomplete="off" oninput="updateFriendMessage()">
+              </div>
+
+              <!-- Friend's Phone Number -->
+              <div class="friends-field">
+                <label for="friend-phone-inp">Friend's 10-Digit Mobile Number *</label>
+                <div class="phone-input-wrap">
+                  <div class="phone-prefix">🇮🇳 +91</div>
+                  <input type="tel" id="friend-phone-inp" class="phone-input" placeholder="9876543210" maxlength="10" autocomplete="off" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+                </div>
+                <small style="color:var(--text3);font-size:11px;margin-top:4px;display:block;">Number is never stored on external servers or spammed.</small>
+              </div>
+
+              <!-- Message Editor -->
+              <div class="friends-field">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                  <label for="friend-msg-text" style="margin:0;">Message Text (Editable)</label>
+                  <button type="button" class="btn-random-msg" style="padding:2px 8px;font-size:11.5px;" onclick="cycleNextTemplate()">
+                    🔄 Next Template
+                  </button>
+                </div>
+                <textarea id="friend-msg-text" class="friends-textarea" oninput="updateBubbleFromTextarea()"></textarea>
+              </div>
+
+            </div>
+
+            <!-- Right: Live WhatsApp Chat Preview & Actions -->
+            <div class="friends-card" style="display:flex;flex-direction:column;justify-content:space-between;">
+              <div>
+                <div class="fc-title">
+                  <span>📱 Live Message Preview</span>
+                  <span style="font-size:11px;color:#25D366;font-weight:600;">● Ready to Send</span>
+                </div>
+
+                <!-- WhatsApp Style Preview Bubble -->
+                <div class="wa-preview-box">
+                  <div class="wa-preview-header">
+                    <div class="wa-preview-av" id="wa-prev-av">?</div>
+                    <div>
+                      <div class="wa-preview-name" id="wa-prev-name">Friend</div>
+                      <div class="wa-preview-status">online</div>
+                    </div>
+                  </div>
+                  <div class="wa-preview-body">
+                    <div class="wa-bubble">
+                      <div id="wa-prev-bubble-text">Loading message...</div>
+                      <div class="wa-bubble-time">
+                        <span id="wa-bubble-clock">10:45 AM</span>
+                        <span>✓✓</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Action Dispatch Buttons -->
+              <div class="friends-actions-grid">
+                <!-- Primary Action: WhatsApp -->
+                <button type="button" class="btn-send-whatsapp" onclick="sendFriendWhatsApp()">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.044c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.099.824zm-3.423-14.416c-6.627 0-12 5.373-12 12 0 2.115.549 4.101 1.514 5.83l-1.609 5.875 6.036-1.583c1.677.914 3.593 1.439 5.632 1.439 6.627 0 12-5.373 12-12 0-6.627-5.373-12-12-12zm0 21.84c-1.847 0-3.565-.502-5.044-1.378l-.361-.214-3.582.939.955-3.491-.235-.374c-.961-1.527-1.503-3.328-1.503-5.262 0-5.421 4.411-9.832 9.833-9.832 5.421 0 9.832 4.411 9.832 9.832 0 5.421-4.411 9.832-9.832 9.832z"/></svg>
+                  <span>Send via WhatsApp</span>
+                </button>
+
+                <div class="btn-send-row-secondary">
+                  <!-- Secondary Action: SMS -->
+                  <button type="button" class="btn-send-sms" onclick="sendFriendSMS()">
+                    <span>📱</span>
+                    <span>Send via SMS</span>
+                  </button>
+
+                  <!-- Tertiary Action: Copy Text -->
+                  <button type="button" class="btn-copy-msg" id="btn-copy-alert" onclick="copyFriendMessage()">
+                    <span>📋</span>
+                    <span id="copy-btn-label">Copy Message</span>
+                  </button>
+                </div>
+              </div>
+
+            </div>
+
+          </div><!-- /friends-main-grid -->
+
+          <!-- Recent Sent Alerts History Card -->
+          <div class="friends-card friends-history-card">
+            <div class="fc-title">
+              <span>📜 Sent Reminders Log</span>
+              <button type="button" class="btn-random-msg" style="padding:3px 10px;font-size:11px;" onclick="clearFriendAlertsHistory()">
+                🗑️ Clear Log
+              </button>
+            </div>
+            <div id="friends-history-list">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+        </div><!-- /friends-wrapper -->
+      </section>
+
     </main>
 
     <!-- Mobile Bottom Nav -->
@@ -904,6 +1098,7 @@
       <button class="nav-btn" data-s="subjects"><span>📊</span><span>Subjects</span></button>
       <button class="nav-btn" data-s="history"><span>📜</span><span>History</span></button>
       <button class="nav-btn" data-s="analytics"><span>📈</span><span>Stats</span></button>
+      <button class="nav-btn" data-s="friends"><span>🎉</span><span>Friends</span></button>
       <button class="nav-btn" data-s="settings"><span>⚙️</span><span>Settings</span></button>
     </nav>
 

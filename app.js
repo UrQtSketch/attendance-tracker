@@ -514,6 +514,41 @@ function triggerConfetti() {
 }
 
 // ── THEME MANAGER ────────────────────────────────────────────────
+const THEME_SHOWCASE_META = {
+  cosmic: {
+    icon: '🌌',
+    pill: 'Cosmic Midnight Theme',
+    name: 'Deep Nebula & Starlight',
+    desc: 'Glowing deep space violet and cosmic indigo designed for late-night study sessions with zero eye strain.',
+    colors: ['#6366f1', '#a855f7', '#06b6d4'],
+    label: '#6366f1 • #a855f7 • #06b6d4'
+  },
+  emerald: {
+    icon: '🌿',
+    pill: 'Emerald Obsidian Theme',
+    name: 'Aurora Flow & Bio Matrix',
+    desc: 'Electric mint and emerald obsidian inspired by cyber matrix greens and natural botanical calm.',
+    colors: ['#10b981', '#34d399', '#14b8a6'],
+    label: '#10b981 • #34d399 • #14b8a6'
+  },
+  sunset: {
+    icon: '🌅',
+    pill: 'Sunset Velvet Theme',
+    name: 'Ember Waves & Coral Sunset',
+    desc: 'Warm velvet sunset tones of flaming rose and amber gold radiating energy and motivation.',
+    colors: ['#ec4899', '#f97316', '#fbbf24'],
+    label: '#ec4899 • #f97316 • #fbbf24'
+  },
+  oled: {
+    icon: '⚡',
+    pill: 'Pure OLED Theme',
+    name: 'Cyber Flux & True Black',
+    desc: 'Zero-battery drain pure black with hyper-sharp cyan laser contrast for true OLED screens.',
+    colors: ['#38bdf8', '#ffffff', '#0284c7'],
+    label: '#38bdf8 • #ffffff • #0284c7'
+  }
+};
+
 window.setTheme = function(themeName) {
   const valid = ['cosmic', 'emerald', 'sunset', 'oled'];
   const t = valid.includes(themeName) ? themeName : 'cosmic';
@@ -527,7 +562,40 @@ window.setTheme = function(themeName) {
 
   const sel = qs('#s-theme-sel');
   if (sel) sel.value = t;
+
+  updateLoginThemeShowcase(t);
 };
+
+function updateLoginThemeShowcase(t) {
+  const showcase = qs('#login-theme-showcase');
+  if (!showcase) return;
+
+  showcase.dataset.theme = t;
+  const meta = THEME_SHOWCASE_META[t] || THEME_SHOWCASE_META.cosmic;
+
+  const iconEl = qs('#showcase-core-icon');
+  if (iconEl) iconEl.textContent = meta.icon;
+
+  const pillTitle = qs('#showcase-pill-title');
+  if (pillTitle) pillTitle.textContent = meta.pill;
+
+  const nameEl = qs('#showcase-name');
+  if (nameEl) nameEl.textContent = meta.name;
+
+  const descEl = qs('#showcase-desc');
+  if (descEl) descEl.textContent = meta.desc;
+
+  const labelEl = qs('#sc-color-label');
+  if (labelEl) labelEl.textContent = meta.label;
+
+  const c1 = qs('#sc-c1'); if (c1) c1.style.background = meta.colors[0];
+  const c2 = qs('#sc-c2'); if (c2) c2.style.background = meta.colors[1];
+  const c3 = qs('#sc-c3'); if (c3) c3.style.background = meta.colors[2];
+
+  showcase.style.animation = 'none';
+  showcase.offsetHeight;
+  showcase.style.animation = 'fadeUp 0.4s ease';
+}
 
 // ── 8. HELPERS ───────────────────────────────────────────────────
 function fmtPct(n){ return(!isFinite(n)||isNaN(n))?'0.0%':n.toFixed(1)+'%'; }
@@ -1275,6 +1343,227 @@ function isInformalPlainList(rawText) {
   return false;
 }
 
+function parseBracketDays(str) {
+  if (!str) return [1];
+  const clean = str.replace(/[^\d,\-–]/g, '');
+  const days = new Set();
+  const parts = clean.split(/[,]/);
+  for (const part of parts) {
+    const range = part.split(/[-–]/).map(Number).filter(n => n >= 1 && n <= 6);
+    if (range.length === 2) {
+      for (let d = range[0]; d <= range[1]; d++) days.add(d);
+    } else if (range.length === 1) {
+      days.add(range[0]);
+    }
+  }
+  if (days.size === 0 && /^[1-6]{2}$/.test(clean)) {
+    days.add(Number(clean[0]));
+    days.add(Number(clean[1]));
+  }
+  return days.size > 0 ? Array.from(days).sort() : [1];
+}
+
+function parseSectionGridFromTSV(tsvString) {
+  if (!tsvString) return [];
+  const lines = tsvString.split('\n');
+  const words = [];
+  for (const l of lines) {
+    const p = l.split('\t');
+    if (p.length >= 12 && p[11] && p[11].trim()) {
+      words.push({
+        left: parseInt(p[6]),
+        top: parseInt(p[7]),
+        width: parseInt(p[8]),
+        height: parseInt(p[9]),
+        conf: parseFloat(p[10]),
+        text: p[11].trim()
+      });
+    }
+  }
+
+  if (words.length < 15) return [];
+
+  const maxLeft = Math.max(...words.map(w => w.left + w.width));
+  const maxTop = Math.max(...words.map(w => w.top + w.height));
+
+  const hasBracketDays = words.some(w => /\([1-6][\-–,][1-6]\)/.test(w.text) || /th[e+s]*lab/i.test(w.text) || /\bth\b/i.test(w.text));
+  if (!hasBracketDays) return [];
+
+  const rollnoWord = words.find(w => /rollno|roll/i.test(w.text));
+  const gridLeft = rollnoWord ? (rollnoWord.left + rollnoWord.width + 10) : Math.round(maxLeft * 0.20);
+  const gridRight = maxLeft;
+
+  const headerWords = words.filter(w => w.top < 65 && w.left >= gridLeft - 20);
+  const detectedTimes = [];
+  const timeRegex = /(\d{1,2}[:.]\d{2})\s*(?:-|to|–)\s*(\d{1,2}[:.]\d{2})/gi;
+  for (const hw of headerWords) {
+    let tm;
+    while ((tm = timeRegex.exec(hw.text)) !== null) {
+      detectedTimes.push({
+        left: hw.left,
+        raw: tm[0],
+        start: tm[1].replace('.', ':').padStart(5, '0'),
+        end: tm[2].replace('.', ':').padStart(5, '0')
+      });
+    }
+  }
+
+  const DEFAULT_TIMES = [
+    { start: '09:00', end: '10:00', raw: '09:00 - 10:00' },
+    { start: '10:00', end: '11:00', raw: '10:00 - 11:00' },
+    { start: '11:00', end: '12:00', raw: '11:00 - 12:00' },
+    { start: '12:00', end: '01:00', raw: '12:00 - 01:00' },
+    { start: '01:00', end: '02:00', raw: '01:00 - 02:00' }
+  ];
+
+  const numSlots = 5;
+  const slotWidth = (gridRight - gridLeft) / numSlots;
+
+  const classes = [];
+  const DAY_NAMES = ['', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+  for (let s = 0; s < numSlots; s++) {
+    const minX = gridLeft + s * slotWidth - 10;
+    const maxX = gridLeft + (s + 1) * slotWidth + 10;
+    const slotTime = DEFAULT_TIMES[s];
+
+    const colWords = words.filter(w => w.top >= 40 && w.left >= minX && w.left < maxX);
+    if (!colWords.length) continue;
+
+    colWords.sort((a, b) => a.top - b.top);
+    const cells = [];
+    let currentCell = [];
+    for (let i = 0; i < colWords.length; i++) {
+      const w = colWords[i];
+      const isBracketStart = /^(?:th[e+s]*lab|thelab|thslab|th|lab|th)?\s*[\(\[]/i.test(w.text) || /^th[a-z0-9\(\)]+$/i.test(w.text);
+      if (i > 0 && isBracketStart && (w.top - colWords[i-1].top > 18)) {
+        if (currentCell.length) cells.push(currentCell);
+        currentCell = [w];
+      } else {
+        currentCell.push(w);
+      }
+    }
+    if (currentCell.length) cells.push(currentCell);
+
+    for (let cellIdx = 0; cellIdx < cells.length; cellIdx++) {
+      const cellWords = cells[cellIdx];
+      const cellText = cellWords.map(w => w.text).join(' ');
+      if (!cellText || cellText.length < 3) continue;
+
+      const bracketMatch = cellText.match(/(?:Th[e+s]*Lab|Th|Lab|TheLab|ThsLab)?\s*[\(\[]\s*([a-z]?\d(?:[\s,\-–]+\d)*)\s*[\)\]]/i);
+      let days = bracketMatch ? parseBracketDays(bracketMatch[1]) : null;
+      if (!days || days.length === 0) {
+        // If bottom cell of a split column, default counterpart is [4, 5, 6]
+        days = (cellIdx > 0) ? [4, 5, 6] : [1, 2, 3];
+      }
+
+      let type = 'Theory';
+      if (/lab/i.test(cellText)) type = 'Theory + Lab';
+      if (/yoga|sports|mentoring|library|activity/i.test(cellText)) type = 'Activity';
+
+      let code = null;
+      const codeMatch = cellText.match(/\b([A-Z]{2,4}\s*[-]?\s*[0-9]{3}[A-Z]?)\b/i) || cellText.match(/\b(C{1,2}\d{3})\b/i);
+      if (codeMatch) code = codeMatch[1].toUpperCase().replace(/^C(\d)/, 'CC$1');
+
+      let teacher = null;
+      const teacherMatch = cellText.match(/\b((?:Dr\.|Prof\.|Mr\.|Ms\.|Mrs\.)\s+[A-Za-z]+)\b/i);
+      if (teacherMatch) teacher = teacherMatch[1];
+
+      let room = null;
+      const roomMatch = cellText.match(/\b(Lab[-\s]*\d+|R[-\s]*\d+)\b/i);
+      if (roomMatch) room = roomMatch[1].replace(/\s+/g, '-');
+
+      let subject = cellText
+        .replace(/(?:Th[e+s]*Lab|Th|Lab|TheLab|ThsLab)?\s*[\(\[]\s*[^)\]]+[\)\]]/gi, ' ')
+        .replace(/\b(?:Dr\.|Prof\.|Mr\.|Ms\.|Mrs\.)\s+[A-Za-z]+\b/gi, ' ')
+        .replace(/\b(?:Lab[-\s]*\d+|R[-\s]*\d+)\b/gi, ' ')
+        .replace(/\b([A-Z]{2,4}\s*[-]?\s*[0-9]{3}[A-Z]?)\b/gi, ' ')
+        .replace(/\b(C{1,2}\d{3})\b/gi, ' ')
+        .replace(/[()[\]{}|_\-=+—$]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+      if (teacher) {
+        subject = subject.replace(new RegExp('\\b' + teacher.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'gi'), ' ').trim();
+      }
+
+      if (/data\s*base/i.test(subject) || /dbms/i.test(subject) || /cc202/i.test(code || '')) subject = 'Database Management System';
+      else if (/computer\s*graphics/i.test(subject) || /cc204/i.test(code || '')) subject = 'Computer Graphics';
+      else if (/probability/i.test(subject) || /cc201/i.test(code || '')) subject = 'Probability & Statistics';
+      else if (/software\s*eng/i.test(subject) || /cc203/i.test(code || '') || /ravinder/i.test(teacher || '')) subject = 'Software Engineering';
+      else if (/python/i.test(subject) || /sec201/i.test(code || '') || /nisha/i.test(teacher || '')) subject = 'Python Programming';
+      else if (/yoga/i.test(subject) || /yogesh/i.test(teacher || '')) subject = 'YOGA';
+
+      let icon = '📚';
+      const subLower = (subject + ' ' + (code || '')).toLowerCase();
+      if (/python|java|c\+\+|coding|program|software|web|cs\d|it\d|tech|computer/i.test(subLower)) icon = '💻';
+      else if (/database|dbms|sql|data/i.test(subLower)) icon = '🗄️';
+      else if (/math|stat|calculus|algebra|probability/i.test(subLower)) icon = '📐';
+      else if (/graphics|design|multimedia/i.test(subLower)) icon = '🎨';
+      else if (/yoga|health|fitness/i.test(subLower)) icon = '🧘';
+
+      if (subject.length >= 3) {
+        for (const d of days) {
+          classes.push({
+            subject,
+            code,
+            teacher,
+            room,
+            type,
+            days: [d],
+            day: DAY_NAMES[d],
+            time: slotTime.raw,
+            startTime: slotTime.start,
+            endTime: slotTime.end,
+            icon,
+            isUncertain: !teacher || !room
+          });
+        }
+      }
+    }
+  }
+
+  return classes;
+}
+
+function parseSectionGridFromText(rawText) {
+  if (!rawText) return [];
+  const lines = rawText.split('\n').map(l => l.trim()).filter(Boolean);
+  const bracketMatches = (rawText.match(/(?:Th[e+s]*Lab|TheLab|ThsLab|Th|Lab|TH)?\s*[\(\[]\s*([a-z]?\d(?:[\s,\-–]+\d)*)\s*[\)\]]/gi) || []);
+  if (bracketMatches.length < 2) return [];
+
+  const DAY_NAMES = ['', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const classes = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const tmMatch = line.match(/(\d{1,2}[:.]\d{2})\s*(?:am|pm)?\s*(?:-|to|–)\s*(\d{1,2}[:.]\d{2})\s*(?:am|pm)?/i);
+    if (tmMatch && line.includes('|')) {
+      const parts = line.split('|').map(p => p.trim()).filter(Boolean);
+      const startTime = tmMatch[1].replace('.', ':').padStart(5, '0');
+      const endTime = tmMatch[2].replace('.', ':').padStart(5, '0');
+      const timeStr = `${startTime} - ${endTime}`;
+
+      for (let p = 0; p < parts.length; p++) {
+        const part = parts[p];
+        if (part.includes(tmMatch[0])) continue;
+        const parsed = parseCell(part, 1, 'Monday', timeStr, startTime, endTime, i, p);
+        if (parsed) {
+          if (Array.isArray(parsed.days) && parsed.days.length > 1) {
+            parsed.days.forEach(d => {
+              classes.push({ ...parsed, days: [d], day: DAY_NAMES[d] });
+            });
+          } else {
+            classes.push(parsed);
+          }
+        }
+      }
+    }
+  }
+
+  return classes;
+}
+
 const DEFAULT_PERIOD_TIMES = [
   { start: '09:30', end: '10:30', raw: '09:30 - 10:30' },
   { start: '10:30', end: '11:30', raw: '10:30 - 11:30' },
@@ -1350,32 +1639,43 @@ function parseTimetableFromOCR(rawText, ocrData, fname) {
     };
   }
 
+  // Strategy 0: High-Precision TSV Spatial Extraction for Section Batch Grids (e.g. Indian College Timetables)
+  const tsvInput = (ocrData && ocrData.tsv) ? ocrData.tsv : (typeof ocrData === 'string' && ocrData.includes('\t')) ? ocrData : null;
+  if (tsvInput) {
+    const tsvClasses = parseSectionGridFromTSV(tsvInput);
+    if (tsvClasses.length > 0) {
+      tsvClasses.forEach(c => classes.push(c));
+    }
+  }
+
   // Look for Grid header with times: e.g. 09:30 - 10:30
   let timeSlots = [];
   let headerLineIndex = -1;
 
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    const times = [];
-    const timeRegex = /(\d{1,2}[:.]\d{2})\s*(?:am|pm)?\s*(?:-|to|–)\s*(\d{1,2}[:.]\d{2})\s*(?:am|pm)?/gi;
-    let tm;
-    while ((tm = timeRegex.exec(line)) !== null) {
-      times.push({
-        raw: tm[0],
-        start: tm[1].replace('.', ':').padStart(5, '0'),
-        end: tm[2].replace('.', ':').padStart(5, '0')
-      });
-    }
+  if (classes.length === 0) {
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const times = [];
+      const timeRegex = /(\d{1,2}[:.]\d{2})\s*(?:am|pm)?\s*(?:-|to|–)\s*(\d{1,2}[:.]\d{2})\s*(?:am|pm)?/gi;
+      let tm;
+      while ((tm = timeRegex.exec(line)) !== null) {
+        times.push({
+          raw: tm[0],
+          start: tm[1].replace('.', ':').padStart(5, '0'),
+          end: tm[2].replace('.', ':').padStart(5, '0')
+        });
+      }
 
-    if (times.length >= 2) {
-      timeSlots = times;
-      headerLineIndex = i;
-      break;
+      if (times.length >= 2) {
+        timeSlots = times;
+        headerLineIndex = i;
+        break;
+      }
     }
   }
 
   // Also check for Period column headers: e.g. Period 1 | Period 2 | Period 3
-  if (timeSlots.length < 2) {
+  if (classes.length === 0 && timeSlots.length < 2) {
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
       const parts = line.split(/[|\t]/).map(p => p.trim()).filter(Boolean);
@@ -1427,7 +1727,7 @@ function parseTimetableFromOCR(rawText, ocrData, fname) {
   }
 
   // Strategy 1: Grid Table format with recognized timeSlots (Header = Times/Periods, Rows = Days)
-  if (timeSlots.length >= 2 && headerLineIndex !== -1) {
+  if (classes.length === 0 && timeSlots.length >= 2 && headerLineIndex !== -1) {
     for (let i = headerLineIndex + 1; i < lines.length; i++) {
       const line = lines[i];
       const parts = line.split(/[|\t]/).map(p => p.trim()).filter(Boolean);
@@ -1516,11 +1816,22 @@ function parseTimetableFromOCR(rawText, ocrData, fname) {
     }
   }
 
+  // Strategy 4: Fallback Text Line Parser for Section Batch Grids (Pipe-separated lines with Day Brackets)
+  if (classes.length === 0) {
+    const textSectionClasses = parseSectionGridFromText(rawText);
+    if (textSectionClasses.length > 0) {
+      textSectionClasses.forEach(c => classes.push(c));
+    }
+  }
+
   // Zero-Guessing & Validation Engine
   if (classes.length === 0) {
-    const hasDays = /(monday|tuesday|wednesday|thursday|friday|saturday|\bmon\b|\btue\b|\bwed\b|\bthu\b|\bfri\b|\bsat\b)/i.test(rawText || '');
-    const hasTimes = /(\d{1,2}[:.]\d{2}|\bperiod\b|\btime\b|\bam\b|\bpm\b|\d{1,2}\s*-\s*\d{1,2})/i.test(rawText || '');
-    const hasSubjects = /(python|java|dbms|database|statistics|math|graphics|programming|science|commerce|accounting|engineering|software|lab|cc\d+|sec\d+|theory|class|subject)/i.test(rawText || '');
+    const hasDayNames = /(monday|tuesday|wednesday|thursday|friday|saturday|\bmon\b|\btue\b|\bwed\b|\bthu\b|\bfri\b|\bsat\b)/i.test(rawText || '');
+    const hasDayBrackets = /\b(?:Th[e+s]*Lab|TheLab|ThsLab|Th|Lab|TH)?\s*[\(\[]\s*([a-z]?\d(?:[\s,\-–]+\d)*)\s*[\)\]]/i.test(rawText || '') ||
+                           /\b(?:Th|Lab|TheLab|ThsLab)\s*\(\d/i.test(rawText || '');
+    const hasDays = hasDayNames || hasDayBrackets;
+    const hasTimes = /(\d{1,2}[:.]\d{2}|\bperiod\b|\bpd\b|\btime\b|\bam\b|\bpm\b|\d{1,2}\s*-\s*\d{1,2})/i.test(rawText || '') || hasDayBrackets;
+    const hasSubjects = /(python|java|dbms|database|statistics|math|graphics|programming|science|commerce|accounting|engineering|software|lab|cc\d+|sec\d+|theory|class|subject|yoga)/i.test(rawText || '');
 
     // If text contains recognizable timetable elements (e.g. subjects or days) but is incomplete:
     if (hasSubjects || (hasDays && hasTimes)) {
@@ -1639,16 +1950,36 @@ window.startTimetableAnalysis = async function() {
     } else if (window.Tesseract) {
       try {
         if (msg) msg.textContent = 'Initializing OCR engine & loading vision models...';
-        const ocrPromise = window.Tesseract.recognize(canvas, 'eng', {
-          logger: m => {
-            if (m && m.status) {
-              const pct = m.progress ? ` (${Math.round(m.progress * 100)}%)` : '';
-              if (msg) msg.textContent = `OCR: ${m.status}${pct}...`;
+        let res = null;
+        if (window.Tesseract.createWorker) {
+          const worker = await window.Tesseract.createWorker('eng', 1, {
+            logger: m => {
+              if (m && m.status) {
+                const pct = m.progress ? ` (${Math.round(m.progress * 100)}%)` : '';
+                if (msg) msg.textContent = `OCR: ${m.status}${pct}...`;
+              }
             }
+          });
+          try {
+            await worker.setParameters({ tessedit_pageseg_mode: '4' });
+            const ocrPromise = worker.recognize(canvas, {}, { tsv: true });
+            const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('OCR_TIMEOUT')), 40000));
+            res = await Promise.race([ocrPromise, timeoutPromise]);
+          } finally {
+            await worker.terminate();
           }
-        });
-        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('OCR_TIMEOUT')), 40000));
-        const res = await Promise.race([ocrPromise, timeoutPromise]);
+        } else {
+          const ocrPromise = window.Tesseract.recognize(canvas, 'eng', {
+            logger: m => {
+              if (m && m.status) {
+                const pct = m.progress ? ` (${Math.round(m.progress * 100)}%)` : '';
+                if (msg) msg.textContent = `OCR: ${m.status}${pct}...`;
+              }
+            }
+          });
+          const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('OCR_TIMEOUT')), 40000));
+          res = await Promise.race([ocrPromise, timeoutPromise]);
+        }
         ocrText = res?.data?.text || '';
         ocrData = res?.data || null;
       } catch (e) {
@@ -1891,7 +2222,8 @@ function render(section){
     subjects:renderSubjects,
     history:renderHistory,
     analytics:renderAnalytics,
-    settings:renderSettings
+    settings:renderSettings,
+    friends:renderFriends
   };
   if(map[section]) map[section]();
 }
@@ -2430,6 +2762,208 @@ window.doLogout=function(){
   UserMgr.clear(); navToStep('name'); renderExistingUsers();
 };
 
+// ── 22. FUN WITH FRIENDS (WHATSAPP & SMS ATTENDANCE ROAST & NOTICE) ──
+const FRIEND_TEMPLATES = {
+  fun: [
+    "🚨 Bunkometer Alert! {NAME} teri attendance 75% ke neeche chali gayi hai, HOD tere naam ke poster lagwa rahe hain 😂 Kal time pe college aaja aur Attendance Tracker me apni attendance track kar le: https://attendence-tracker-d5940.web.app",
+    "Bhai {NAME} kitna soyega? Attendance 75% se kam ho gayi toh exam hall ke bahar baithna padega! Kal pakka class attend kar aur yahan track kar: https://attendence-tracker-d5940.web.app",
+    "⚠️ Attention Bunk Master {NAME}! Attendance criteria critical danger zone me hai. Proxy lagane ka quota officially khatam ho chuka hai! Kal se seedhe class aana: https://attendence-tracker-d5940.web.app",
+    "{NAME} tere dost ki taraf se warning: Attendance 75% se niche hai! Kal teacher ne attendance register me tera naam red pen se mark kar diya hai. Kal class aana mandatory hai: https://attendence-tracker-d5940.web.app"
+  ],
+  serious: [
+    "⚠️ URGENT COLLEGE NOTICE: {NAME} your college attendance is currently below 75%! As per university norms, you may be debarred from upcoming semester exams if shortage continues. Please attend all scheduled lectures tomorrow and track your daily attendance here: https://attendence-tracker-d5940.web.app",
+    "🚨 ATTENDANCE DEFICIT WARNING: {NAME} you have dropped below the mandatory 75% attendance threshold. Please report to college tomorrow and verify your attendance status on Attendance Tracker: https://attendence-tracker-d5940.web.app",
+    "Official Attendance Shortage Advisory for {NAME}: Immediate attendance regularisation required to prevent parents notification and exam hall ticket hold. Monitor your daily attendance live: https://attendence-tracker-d5940.web.app"
+  ]
+};
+
+let currentFriendTone = 'fun';
+let currentTemplateIndex = 0;
+
+function getFriendNamePlaceholder(tone) {
+  const raw = (qs('#friend-name-inp')?.value || '').trim();
+  if (raw) return raw + ',';
+  return tone === 'serious' ? 'Student,' : 'Bhai,';
+}
+
+function getFormattedFriendMessage() {
+  const tone = currentFriendTone === 'surprise' ? (Math.random() > 0.5 ? 'fun' : 'serious') : currentFriendTone;
+  const list = FRIEND_TEMPLATES[tone] || FRIEND_TEMPLATES.fun;
+  const tpl = list[currentTemplateIndex % list.length];
+  const name = getFriendNamePlaceholder(tone);
+  return tpl.replace('{NAME}', name);
+}
+
+window.setFriendTone = function(tone) {
+  currentFriendTone = tone;
+  currentTemplateIndex = 0;
+  qsa('.tone-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.id === `tone-${tone}`);
+  });
+  updateFriendMessage();
+  playAudio('click');
+};
+
+window.cycleNextTemplate = function() {
+  const tone = currentFriendTone === 'surprise' ? (Math.random() > 0.5 ? 'fun' : 'serious') : currentFriendTone;
+  const list = FRIEND_TEMPLATES[tone] || FRIEND_TEMPLATES.fun;
+  currentTemplateIndex = (currentTemplateIndex + 1) % list.length;
+  updateFriendMessage();
+  playAudio('click');
+};
+
+window.updateFriendMessage = function() {
+  const msg = getFormattedFriendMessage();
+  const txt = qs('#friend-msg-text');
+  if (txt) txt.value = msg;
+  updateBubbleFromTextarea();
+};
+
+window.updateBubbleFromTextarea = function() {
+  const txt = qs('#friend-msg-text')?.value || '';
+  const bubble = qs('#wa-prev-bubble-text');
+  if (bubble) bubble.textContent = txt;
+
+  const rawName = (qs('#friend-name-inp')?.value || '').trim() || 'Friend';
+  const nameEl = qs('#wa-prev-name');
+  if (nameEl) nameEl.textContent = rawName;
+  const avEl = qs('#wa-prev-av');
+  if (avEl) avEl.textContent = rawName.charAt(0).toUpperCase();
+
+  const clock = qs('#wa-bubble-clock');
+  if (clock) {
+    const now = new Date();
+    clock.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+};
+
+function getFriendPhoneValidated() {
+  const inp = qs('#friend-phone-inp');
+  if (!inp) return null;
+  const phone = inp.value.replace(/[^0-9]/g, '');
+  if (phone.length !== 10 || !/^[6-9]\d{9}$/.test(phone)) {
+    shake('#friend-phone-inp');
+    alert('Please enter a valid 10-digit Indian mobile number (e.g. 9876543210).');
+    inp.focus();
+    return null;
+  }
+  return phone;
+}
+
+window.sendFriendWhatsApp = function() {
+  const phone = getFriendPhoneValidated();
+  if (!phone) return;
+  const msg = qs('#friend-msg-text')?.value || getFormattedFriendMessage();
+  const waUrl = `https://api.whatsapp.com/send?phone=91${phone}&text=${encodeURIComponent(msg)}`;
+
+  logFriendAlert(phone, 'WhatsApp', msg);
+  playAudio('celebrate');
+  triggerConfetti();
+
+  window.open(waUrl, '_blank');
+};
+
+window.sendFriendSMS = function() {
+  const phone = getFriendPhoneValidated();
+  if (!phone) return;
+  const msg = qs('#friend-msg-text')?.value || getFormattedFriendMessage();
+  const smsUrl = `sms:+91${phone}?body=${encodeURIComponent(msg)}`;
+
+  logFriendAlert(phone, 'SMS', msg);
+  playAudio('celebrate');
+  triggerConfetti();
+
+  window.location.href = smsUrl;
+};
+
+window.copyFriendMessage = function() {
+  const msg = qs('#friend-msg-text')?.value || getFormattedFriendMessage();
+  navigator.clipboard.writeText(msg).then(() => {
+    const lbl = qs('#copy-btn-label');
+    if (lbl) {
+      lbl.textContent = '✓ Copied!';
+      setTimeout(() => { lbl.textContent = 'Copy Message'; }, 2000);
+    }
+    playAudio('click');
+  }).catch(() => {
+    alert('Failed to copy to clipboard.');
+  });
+};
+
+function logFriendAlert(phone, channel, msg) {
+  const name = (qs('#friend-name-inp')?.value || '').trim() || 'Friend';
+  const ukey = UserMgr.ukey('friend_alerts');
+  let history = [];
+  try {
+    history = JSON.parse(localStorage.getItem(ukey) || '[]');
+  } catch (e) {
+    history = [];
+  }
+
+  const record = {
+    id: 'fa_' + Date.now(),
+    name,
+    phone: phone.slice(0, 5) + '*****',
+    channel,
+    tone: currentFriendTone,
+    date: new Date().toLocaleString(),
+    timestamp: Date.now()
+  };
+
+  history.unshift(record);
+  localStorage.setItem(ukey, JSON.stringify(history.slice(0, 20)));
+
+  if (db && UserMgr.get()) {
+    const docId = cleanDocId(UserMgr.get());
+    try {
+      db.collection('attendance_users').doc(docId).set({
+        friendAlerts: history.slice(0, 20)
+      }, { merge: true }).catch(() => {});
+    } catch(e) {}
+  }
+
+  renderFriendAlertsHistory();
+}
+
+function renderFriendAlertsHistory() {
+  const el = qs('#friends-history-list');
+  if (!el) return;
+  const ukey = UserMgr.ukey('friend_alerts');
+  let history = [];
+  try {
+    history = JSON.parse(localStorage.getItem(ukey) || '[]');
+  } catch (e) {
+    history = [];
+  }
+
+  if (!history.length) {
+    el.innerHTML = `<div style="text-align:center;padding:16px;color:var(--text3);font-size:12.5px;">No friend reminders sent yet. Enter a phone number above to alert a friend!</div>`;
+    return;
+  }
+
+  el.innerHTML = history.map(h => `
+    <div class="fh-item">
+      <div>
+        <div class="fh-meta">${h.name} (${h.phone})</div>
+        <div class="fh-sub">Sent on ${h.date} &middot; Tone: ${h.tone || 'fun'}</div>
+      </div>
+      <span class="fh-badge ${h.channel === 'WhatsApp' ? 'wa' : 'sms'}">${h.channel === 'WhatsApp' ? '💬 WhatsApp' : '📱 SMS'}</span>
+    </div>
+  `).join('');
+}
+
+window.clearFriendAlertsHistory = function() {
+  if (!confirm('Clear recent sent reminders history?')) return;
+  const ukey = UserMgr.ukey('friend_alerts');
+  localStorage.removeItem(ukey);
+  renderFriendAlertsHistory();
+};
+
+function renderFriends() {
+  updateFriendMessage();
+  renderFriendAlertsHistory();
+}
+
 // ── 20. INIT ─────────────────────────────────────────────────────
 async function init(){
   initFirebase();
@@ -2470,6 +3004,9 @@ window.TimetableAnalyzer = {
   normalizeDay,
   extractTimetableMetadata,
   parseCell,
+  parseBracketDays,
+  parseSectionGridFromTSV,
+  parseSectionGridFromText,
   parseTimetableFromOCR,
   evaluateTimetableCompleteness,
   updateDevAnalysis
@@ -2481,6 +3018,9 @@ if (typeof module !== 'undefined' && module.exports) {
     normalizeDay,
     extractTimetableMetadata,
     parseCell,
+    parseBracketDays,
+    parseSectionGridFromTSV,
+    parseSectionGridFromText,
     parseTimetableFromOCR,
     evaluateTimetableCompleteness
   };
