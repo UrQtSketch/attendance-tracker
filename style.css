@@ -411,6 +411,88 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); 
   50% { transform: scale(1.35); opacity: 0.6; }
 }
 
+/* ── MOBILE COMPACT THEME HERO (Hidden on Desktop) ─────────────── */
+.login-mobile-portal-wrap {
+  display: none;
+}
+
+.mobile-showcase-portal {
+  width: 88px;
+  height: 88px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: portalBreathe 3.6s ease-in-out infinite;
+}
+
+.mobile-portal-ring-outer {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px dashed rgba(255,255,255,0.28);
+  animation: orbitSpin 14s linear infinite;
+  box-shadow: 0 0 16px var(--glow-primary);
+  transition: border-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+.mobile-portal-ring-mid {
+  position: absolute;
+  inset: 10px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,0.35);
+  border-top-color: transparent;
+  border-bottom-color: transparent;
+  animation: orbitSpinReverse 9s linear infinite;
+}
+
+.mobile-portal-core {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--grad-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: 0 0 25px var(--glow-primary);
+  animation: spherePulse 3.6s ease-in-out infinite;
+  transition: background 0.4s ease, box-shadow 0.4s ease;
+}
+
+.mobile-portal-icon {
+  font-size: 24px;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4));
+  animation: floatIcon 4s ease-in-out infinite;
+}
+
+.m-sc-part {
+  position: absolute;
+  border-radius: 50%;
+  background: var(--blue2);
+  filter: blur(1px);
+  pointer-events: none;
+  animation: floatParticle 4s ease-in-out infinite;
+}
+.m-p1 { width: 5px; height: 5px; top: 8%; left: 14%; animation-delay: 0s; }
+.m-p2 { width: 4px; height: 4px; top: 78%; right: 14%; animation-delay: 1.2s; }
+.m-p3 { width: 5px; height: 5px; bottom: 12%; left: 20%; animation-delay: 2.1s; }
+
+.mobile-theme-pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 3px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--blue2);
+  margin-top: 10px;
+  transition: all 0.3s ease;
+}
+
 /* Responsive adjustment for login flex layout */
 @media (max-width: 1120px) {
   .showcase-left {
@@ -422,28 +504,83 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); 
 }
 
 @media (max-width: 860px) {
-  .showcase-left {
+  .showcase-left,
+  .showcase-right,
+  .login-theme-showcase {
     display: none !important;
+  }
+  .login-logo {
+    display: none !important;
+  }
+  .login-mobile-portal-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+  }
+  .login-wrap {
+    padding: 18px 14px;
   }
   .login-layout-flex {
     flex-direction: column;
-    gap: 20px;
+    gap: 0;
   }
   .login-card {
-    max-width: 480px;
+    max-width: 440px;
+    padding: 26px 18px;
+    border-radius: 22px;
   }
-  .login-theme-showcase {
-    max-width: 480px;
-    padding: 24px 20px;
+  .login-title {
+    font-size: 24px;
+    margin-bottom: 4px;
   }
-  .showcase-portal {
-    width: 140px;
-    height: 140px;
-    margin-bottom: 16px;
+  .login-tagline {
+    font-size: 12.5px;
+    margin-bottom: 18px;
   }
-  .showcase-core-sphere {
-    width: 64px;
-    height: 64px;
+  .login-features {
+    gap: 6px;
+    margin-bottom: 18px;
+  }
+  .login-features span {
+    font-size: 10.5px;
+    padding: 3px 8px;
+  }
+  .login-theme-bar {
+    margin-bottom: 14px;
+    padding: 5px 12px;
+  }
+  .login-inp {
+    padding: 12px 14px;
+    font-size: 15px;
+  }
+  .login-btn {
+    padding: 12px;
+    font-size: 14.5px;
+  }
+}
+
+@media (max-width: 400px) {
+  .login-wrap {
+    padding: 12px 10px;
+  }
+  .login-card {
+    padding: 20px 14px;
+  }
+  .mobile-showcase-portal {
+    width: 78px;
+    height: 78px;
+  }
+  .mobile-portal-core {
+    width: 46px;
+    height: 46px;
+  }
+  .mobile-portal-icon {
+    font-size: 20px;
+  }
+  .login-title {
+    font-size: 22px;
   }
 }
 

@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=3.7">
+  <link rel="stylesheet" href="style.css?v=3.8">
 </head>
 <body>
 
@@ -98,12 +98,27 @@
           </div>
         </div>
 
-        <!-- Logo -->
+        <!-- Desktop Logo -->
         <div class="login-logo">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
             <path d="M6 12v5c3 3 9 3 12 0v-5"/>
           </svg>
+        </div>
+
+        <!-- Mobile Compact Animated Theme Hero (Visible only on phone screens) -->
+        <div class="login-mobile-portal-wrap" id="login-mobile-portal-wrap">
+          <div class="mobile-showcase-portal">
+            <div class="mobile-portal-ring-outer"></div>
+            <div class="mobile-portal-ring-mid"></div>
+            <div class="mobile-portal-core">
+              <span class="mobile-portal-icon" id="mobile-portal-icon">🌌</span>
+            </div>
+            <span class="m-sc-part m-p1"></span>
+            <span class="m-sc-part m-p2"></span>
+            <span class="m-sc-part m-p3"></span>
+          </div>
+          <div class="mobile-theme-pill-badge" id="mobile-theme-pill-badge">Cosmic Midnight Theme</div>
         </div>
 
         <h1 class="login-title">Your Attendance Tracker</h1>
@@ -1187,6 +1202,6 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
 <!-- Tesseract OCR Engine (Client-Side) -->
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-<script src="app.js?v=3.7"></script>
+<script src="app.js?v=3.8"></script>
 </body>
 </html>

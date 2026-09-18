@@ -567,10 +567,25 @@ window.setTheme = function(themeName) {
 };
 
 function updateLoginThemeShowcase(t) {
+  const meta = THEME_SHOWCASE_META[t] || THEME_SHOWCASE_META.cosmic;
+
+  // Mobile compact hero circle
+  const mobileIcon = qs('#mobile-portal-icon');
+  if (mobileIcon) mobileIcon.textContent = meta.icon;
+
+  const mobileBadge = qs('#mobile-theme-pill-badge');
+  if (mobileBadge) mobileBadge.textContent = meta.pill;
+
+  const mobileCore = qs('.mobile-portal-core');
+  if (mobileCore) {
+    mobileCore.style.animation = 'none';
+    mobileCore.offsetHeight;
+    mobileCore.style.animation = 'spherePulse 3.6s ease-in-out infinite';
+  }
+
+  // Desktop side showcases
   const showcases = qsa('.login-theme-showcase');
   if (!showcases || !showcases.length) return;
-
-  const meta = THEME_SHOWCASE_META[t] || THEME_SHOWCASE_META.cosmic;
 
   showcases.forEach(showcase => {
     showcase.dataset.theme = t;
