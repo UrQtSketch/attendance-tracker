@@ -1,1 +1,527 @@
-<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=Attendance_Tracker_HTML/index.html"><script>window.location.href = "Attendance_Tracker_HTML/index.html";</script></head><body><p>Redirecting to <a href="Attendance_Tracker_HTML/index.html">Attendance Tracker</a>...</p></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Your Attendance Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Ambient orbs -->
+<div class="orb o1"></div>
+<div class="orb o2"></div>
+<div class="orb o3"></div>
+
+<!-- Save indicator -->
+<div id="save-ind" class="save-ind">✓ Saved</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     SCREEN 1: LOGIN
+     ══════════════════════════════════════════════════════════════ -->
+<div id="screen-login" class="screen active">
+  <div class="login-wrap">
+    <div class="login-card">
+
+      <!-- Logo -->
+      <div class="login-logo">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+          <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+        </svg>
+      </div>
+
+      <h1 class="login-title">Your Attendance Tracker</h1>
+      <p class="login-tagline">Track your college attendance — smart &amp; simple</p>
+
+      <!-- Input -->
+      <div class="login-form">
+        <label class="login-label" for="login-inp">Enter your name to continue</label>
+        <input id="login-inp" class="login-inp" type="text" placeholder="e.g. Rahul, Priya, Amit..." maxlength="30" autocomplete="off" spellcheck="false">
+        <button id="login-btn" class="login-btn">Continue &rarr;</button>
+      </div>
+
+      <!-- Existing users -->
+      <div id="existing-users"></div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     SCREEN 2: TIMETABLE SETUP
+     ══════════════════════════════════════════════════════════════ -->
+<div id="screen-setup" class="screen">
+  <div class="setup-page">
+
+    <!-- Header -->
+    <div class="setup-topbar">
+      <div class="setup-logo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>Your Attendance Tracker
+      </div>
+    </div>
+
+    <div class="setup-wrap">
+
+      <div class="setup-hdr">
+        <h1 class="setup-title">📋 Add Your Classes</h1>
+        <div id="setup-greeting" class="setup-greeting"></div>
+        <p class="setup-sub">Add each class from your college schedule — subject, teacher, room, and the days it occurs. You can edit this anytime in Settings.</p>
+        <button id="load-preset" class="btn-preset">🎓 Load BCA SEM-III SEC-B Preset</button>
+      </div>
+
+      <!-- Add class form -->
+      <div class="setup-form-card">
+        <div class="sfc-title">➕ Add a Class</div>
+
+        <div class="setup-form-grid">
+          <div class="sfg-row">
+            <div class="sf-field sf-wide">
+              <label>Subject Name *</label>
+              <input id="f-subject" class="sf-inp" type="text" placeholder="e.g. Python Programming" autocomplete="off">
+            </div>
+            <div class="sf-field">
+              <label>Subject Code</label>
+              <input id="f-code" class="sf-inp" type="text" placeholder="e.g. CC201" autocomplete="off">
+            </div>
+          </div>
+          <div class="sfg-row">
+            <div class="sf-field sf-wide">
+              <label>Teacher Name</label>
+              <input id="f-teacher" class="sf-inp" type="text" placeholder="e.g. Ms. Maya" autocomplete="off">
+            </div>
+            <div class="sf-field">
+              <label>Room</label>
+              <input id="f-room" class="sf-inp" type="text" placeholder="e.g. R-80, Lab-2" autocomplete="off">
+            </div>
+          </div>
+          <div class="sfg-row">
+            <div class="sf-field">
+              <label>Type</label>
+              <select id="f-type" class="sf-inp">
+                <option value="Theory">Theory</option>
+                <option value="Theory + Lab">Theory + Lab</option>
+                <option value="Lab">Lab</option>
+                <option value="Activity">Activity</option>
+                <option value="Tutorial">Tutorial</option>
+                <option value="Practical">Practical</option>
+              </select>
+            </div>
+            <div class="sf-field">
+              <label>Icon</label>
+              <select id="f-icon" class="sf-inp">
+                <!-- Populated by JS -->
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Day selector -->
+        <div class="sf-field" style="margin-top:4px">
+          <label>Days this class occurs *</label>
+          <div id="f-days" class="day-picker">
+            <label class="day-lbl"><input type="checkbox" value="1"><span>Mon</span></label>
+            <label class="day-lbl"><input type="checkbox" value="2"><span>Tue</span></label>
+            <label class="day-lbl"><input type="checkbox" value="3"><span>Wed</span></label>
+            <label class="day-lbl"><input type="checkbox" value="4"><span>Thu</span></label>
+            <label class="day-lbl"><input type="checkbox" value="5"><span>Fri</span></label>
+            <label class="day-lbl"><input type="checkbox" value="6"><span>Sat</span></label>
+          </div>
+        </div>
+
+        <button id="add-cls-btn" class="btn-add-class">➕ Add This Class</button>
+      </div>
+
+      <!-- Added classes list -->
+      <div class="setup-list-hdr">
+        <div class="slh-title">Your Timetable</div>
+      </div>
+      <div id="setup-list" class="setup-list"></div>
+
+      <!-- Start tracking -->
+      <div class="setup-footer">
+        <button id="start-btn" class="btn-start" disabled>Add at least one class first</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     SCREEN 3: APP
+     ══════════════════════════════════════════════════════════════ -->
+<div id="screen-app" class="screen">
+<div class="layout">
+
+  <!-- ──────── SIDEBAR ──────── -->
+  <aside class="sidebar">
+
+    <!-- Brand + user -->
+    <div class="sb-brand">
+      <div class="sb-logo">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+          <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+        </svg>
+      </div>
+      <div>
+        <div class="sb-name">Your Attendance Tracker</div>
+        <div class="sb-sub">Smart Attendance</div>
+      </div>
+    </div>
+
+    <!-- User pill -->
+    <div class="sb-user">
+      <div class="sb-user-av" id="app-user-av">?</div>
+      <div class="sb-user-name" id="app-user-name">User</div>
+      <button class="sb-logout" onclick="doLogout()" title="Switch user">&#8627;</button>
+    </div>
+
+    <!-- Firebase Cloud Status Badge -->
+    <div class="sb-cloud-badge connected" id="sb-cloud-badge">
+      <span class="cloud-dot"></span>
+      <span id="cloud-status-text">☁️ Firebase Connected</span>
+    </div>
+
+    <!-- Gauge Ring -->
+    <div class="gauge-wrap">
+      <svg class="gauge-svg" viewBox="0 0 100 100">
+        <circle class="g-track" cx="50" cy="50" r="45"/>
+        <circle class="g-fill" id="gf" cx="50" cy="50" r="45" stroke-dasharray="282.74" stroke-dashoffset="282.74"/>
+      </svg>
+      <div class="gauge-center">
+        <div class="g-pct" id="g-pct">0%</div>
+        <div class="g-lbl">Overall</div>
+      </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="sb-stats">
+      <div class="sbs-card sbs-p">
+        <div class="sbs-icon">✓</div>
+        <div><div class="sbs-val" id="sb-present">0</div><div class="sbs-lbl">Present</div></div>
+      </div>
+      <div class="sbs-card sbs-a">
+        <div class="sbs-icon">✕</div>
+        <div><div class="sbs-val" id="sb-absent">0</div><div class="sbs-lbl">Absent</div></div>
+      </div>
+    </div>
+
+    <!-- Smart Planner -->
+    <div class="sb-planner">
+      <div class="sbp-title">📊 Smart Planner</div>
+      <div class="sbp-box" id="p-miss">—</div>
+      <div class="sbp-box" id="p-need" style="display:none">—</div>
+    </div>
+
+    <!-- Theme Switcher & Sound -->
+    <div class="theme-switch-wrap">
+      <div class="theme-switch-lbl"><span>🎨 Theme</span></div>
+      <div class="theme-pills">
+        <button class="theme-pill-btn theme-pill-cosmic active" id="th-cosmic" title="Cosmic Midnight" onclick="setTheme('cosmic')"></button>
+        <button class="theme-pill-btn theme-pill-emerald" id="th-emerald" title="Emerald Obsidian" onclick="setTheme('emerald')"></button>
+        <button class="theme-pill-btn theme-pill-sunset" id="th-sunset" title="Sunset Velvet" onclick="setTheme('sunset')"></button>
+        <button class="theme-pill-btn theme-pill-oled" id="th-oled" title="Pure OLED" onclick="setTheme('oled')"></button>
+      </div>
+      <button class="btn-sound-toggle" id="sound-btn" onclick="toggleSound()" title="Sound effects">🔊</button>
+    </div>
+
+    <!-- Required badge -->
+    <div class="sb-req">
+      <span class="req-dot"></span> 75% Minimum Required
+    </div>
+
+    <!-- Desktop Nav -->
+    <nav class="sb-nav">
+      <button class="nav-btn active" data-s="today"><span class="nav-icon">📅</span><span>Today</span></button>
+      <button class="nav-btn" data-s="schedule"><span class="nav-icon">🗓️</span><span>Schedule</span></button>
+      <button class="nav-btn" data-s="calendar"><span class="nav-icon">📆</span><span>Calendar</span></button>
+      <button class="nav-btn" data-s="subjects"><span class="nav-icon">📊</span><span>Subjects</span></button>
+      <button class="nav-btn" data-s="history"><span class="nav-icon">📜</span><span>History</span></button>
+      <button class="nav-btn" data-s="analytics"><span class="nav-icon">📈</span><span>Analytics</span></button>
+      <button class="nav-btn" data-s="settings"><span class="nav-icon">⚙️</span><span>Settings</span></button>
+    </nav>
+
+  </aside>
+
+  <!-- ──────── MAIN ──────── -->
+  <div class="main-wrap">
+    <main class="main">
+
+      <!-- TODAY -->
+      <section id="s-today" class="section active">
+        <div class="date-bar">
+          <div class="date-bar-l">
+            <button id="btn-prev" class="nav-arrow">&#8592;</button>
+            <div class="date-info">
+              <div class="date-day" id="t-dayname">Loading...</div>
+              <div class="date-full" id="t-date"></div>
+              <span class="t-label" id="t-label"></span>
+            </div>
+            <button id="btn-next" class="nav-arrow">&#8594;</button>
+          </div>
+          <div class="date-bar-r">
+            <div id="hol-badge" class="hol-badge" style="display:none"></div>
+            <button id="hol-btn" class="hol-btn">🏖️ Mark Holiday</button>
+            <button id="btn-today" class="btn-today">Jump to Today</button>
+          </div>
+        </div>
+
+        <!-- 1-Tap Quick Actions Bar -->
+        <div class="quick-actions-bar">
+          <button class="btn-quick-action btn-mark-all-p" onclick="markAllToday('present')">⚡ Mark All Present</button>
+          <button class="btn-quick-action" onclick="resetTodayAttendance()">🔄 Reset Day</button>
+        </div>
+
+        <div id="day-sum"></div>
+        <div id="class-list" class="class-list"></div>
+      </section>
+
+      <!-- WEEKLY SCHEDULE -->
+      <section id="s-schedule" class="section">
+        <div class="sec-hdr">
+          <div class="sec-title">🗓️ Weekly College Schedule</div>
+        </div>
+        <div class="sched-wrapper">
+          <div id="sched-grid" class="sched-grid"></div>
+        </div>
+      </section>
+
+      <!-- CALENDAR -->
+      <section id="s-calendar" class="section">
+        <div class="sec-hdr"><div class="sec-title">📆 Monthly Calendar</div></div>
+        <div class="cal-wrapper">
+          <div class="cal-nav">
+            <button id="cal-prev" class="cal-nav-btn">&#8592; Prev</button>
+            <div id="cal-label" class="cal-label">—</div>
+            <button id="cal-next" class="cal-nav-btn">Next &#8594;</button>
+          </div>
+          <div class="cal-head">
+            <div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div>
+          </div>
+          <div id="cal-grid" class="cal-grid"></div>
+          <div class="cal-legend">
+            <span>🟢 ≥75% Safe</span>
+            <span>🟡 65–75% Warning</span>
+            <span>🔴 &lt;65% Critical</span>
+            <span>⚪ Unmarked</span>
+            <span>🏖️ Holiday</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- SUBJECTS -->
+      <section id="s-subjects" class="section">
+        <div class="sec-hdr"><div class="sec-title">📊 Attendance Summary</div></div>
+        <div class="ov-card">
+          <div class="ov-left">
+            <div class="ov-pct" id="ov-pct">0.0%</div>
+            <div class="ov-lbl">Overall Attendance</div>
+            <div class="ov-plan" id="ov-planner"></div>
+          </div>
+          <div class="ov-right">
+            <div class="ov-stat"><span class="clr-safe" id="ov-present">0</span><span>Classes Present</span></div>
+            <div class="ov-stat"><span class="clr-danger" id="ov-absent">0</span><span>Classes Absent</span></div>
+            <div class="ov-stat"><span id="ov-total">0</span><span>Total Marked</span></div>
+          </div>
+        </div>
+        <div id="subj-grid" class="subj-grid"></div>
+      </section>
+
+      <!-- HISTORY -->
+      <section id="s-history" class="section">
+        <div class="sec-hdr"><div class="sec-title">📜 Attendance History</div></div>
+        <div class="hist-filters">
+          <select id="h-month" class="hist-sel">
+            <option value="">All Months</option>
+            <option value="2026-06">June 2026</option>
+            <option value="2026-07">July 2026</option>
+            <option value="2026-08">August 2026</option>
+            <option value="2026-09">September 2026</option>
+            <option value="2026-10">October 2026</option>
+            <option value="2026-11">November 2026</option>
+            <option value="2026-12">December 2026</option>
+            <option value="2027-01">January 2027</option>
+            <option value="2027-02">February 2027</option>
+            <option value="2027-03">March 2027</option>
+          </select>
+          <select id="h-status" class="hist-sel">
+            <option value="">All Status</option>
+            <option value="safe">🟢 Safe (≥75%)</option>
+            <option value="warn">🟡 Warning (65–75%)</option>
+            <option value="danger">🔴 Critical (&lt;65%)</option>
+          </select>
+        </div>
+        <div id="hist-list" class="hist-list"></div>
+      </section>
+
+      <!-- ANALYTICS & SIMULATOR -->
+      <section id="s-analytics" class="section">
+        <div class="sec-hdr"><div class="sec-title">📈 Analytics &amp; Target Simulator</div></div>
+        
+        <!-- Interactive Bunkometer Widget -->
+        <div class="bunkometer-card">
+          <div class="bunk-hdr">
+            <div class="bunk-title">⚡ Bunkometer &amp; Simulator</div>
+            <div class="bunk-badge" id="bunk-target-badge">Target: 75%</div>
+          </div>
+          <div class="bunk-grid">
+            <div class="bunk-slider-box">
+              <div class="bunk-slider-lbl">
+                <span>Set Desired Attendance Target</span>
+                <span class="bunk-slider-val" id="bunk-slider-val">75%</span>
+              </div>
+              <input type="range" id="bunk-slider" class="bunk-slider" min="50" max="95" value="75" oninput="onBunkSliderChange(this.value)">
+              <div class="bunk-verdict" id="bunk-verdict">Calculating predictive forecast...</div>
+            </div>
+            <div class="bunk-metric-boxes">
+              <div class="bunk-box">
+                <div class="bunk-box-val clr-safe" id="bunk-val-miss">0</div>
+                <div class="bunk-box-lbl">Safe to Bunk (Classes)</div>
+              </div>
+              <div class="bunk-box">
+                <div class="bunk-box-val clr-danger" id="bunk-val-need">0</div>
+                <div class="bunk-box-lbl">Must Attend (Classes)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="an-body"></div>
+
+        <!-- Student Achievement Badges -->
+        <div class="badges-sec">
+          <div class="badges-hdr">🏆 Student Milestones &amp; Badges</div>
+          <div class="badges-grid" id="badges-grid"></div>
+        </div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section id="s-settings" class="section">
+        <div class="sec-hdr"><div class="sec-title">⚙️ Settings</div></div>
+        <div class="settings-grid">
+
+          <!-- Account -->
+          <div class="setting-card">
+            <div class="setting-title">👤 Account</div>
+            <div class="setting-body">
+              <div class="setting-desc">Logged in as: <strong id="s-user">—</strong></div>
+              <div class="setting-desc" id="s-tt-count" style="color:var(--text3);font-size:12px">—</div>
+              <div class="btn-row">
+                <button id="edit-tt-btn" class="btn-secondary">✏️ Edit Timetable</button>
+                <button id="logout-btn" class="btn-secondary">↩ Switch User</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Appearance & Audio -->
+          <div class="setting-card">
+            <div class="setting-title">🎨 Appearance &amp; Sound</div>
+            <div class="setting-body">
+              <div class="setting-row">
+                <label>Theme Style</label>
+                <select id="s-theme-sel" class="setting-input" onchange="setTheme(this.value)">
+                  <option value="cosmic">🌌 Cosmic Midnight</option>
+                  <option value="emerald">🌿 Emerald Obsidian</option>
+                  <option value="sunset">🌅 Sunset Velvet</option>
+                  <option value="oled">🌑 Pure OLED</option>
+                </select>
+              </div>
+              <div class="setting-row">
+                <label>Tactile Sound Effects</label>
+                <button id="s-sound-btn" class="btn-secondary" onclick="toggleSound()">🔊 Sound Enabled</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Thresholds -->
+          <div class="setting-card">
+            <div class="setting-title">📊 Attendance Thresholds</div>
+            <div class="setting-body">
+              <div class="setting-row">
+                <label>Required Attendance (%)</label>
+                <input type="number" id="s-req" class="setting-input" min="1" max="100" value="75">
+              </div>
+              <div class="setting-row">
+                <label>Warning Threshold (%)</label>
+                <input type="number" id="s-warn" class="setting-input" min="1" max="100" value="65">
+              </div>
+              <button id="save-settings" class="btn-primary">Save Settings</button>
+            </div>
+          </div>
+
+          <!-- Export -->
+          <div class="setting-card">
+            <div class="setting-title">📤 Export Data</div>
+            <div class="setting-body">
+              <div class="setting-desc">Download a backup of your complete attendance history.</div>
+              <div class="btn-row">
+                <button id="exp-csv" class="btn-secondary">📊 Export CSV</button>
+                <button id="exp-json" class="btn-secondary">📄 Export JSON</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Import -->
+          <div class="setting-card">
+            <div class="setting-title">📥 Import Data</div>
+            <div class="setting-body">
+              <div class="setting-desc">Restore from a previously exported JSON backup. Data will be merged.</div>
+              <label class="btn-secondary" style="cursor:pointer;display:inline-block">
+                📁 Choose JSON File
+                <input type="file" id="imp-file" accept=".json" style="display:none">
+              </label>
+            </div>
+          </div>
+
+          <!-- Firebase Cloud Database -->
+          <div class="setting-card">
+            <div class="setting-title">☁️ Firebase Cloud Database</div>
+            <div class="setting-body">
+              <div class="setting-desc">Status: <strong id="s-cloud-status" style="color:var(--safe)">Connected (attendence-tracker-d5940)</strong></div>
+              <div class="setting-desc" style="color:var(--text3);font-size:12px">Your classes, attendance logs, and settings automatically synchronize in real-time with Google Cloud Firestore.</div>
+              <div class="btn-row" style="margin-top:10px">
+                <button id="cloud-sync-btn" class="btn-primary" onclick="forceCloudSync()">🔄 Sync Now with Firebase</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Danger Zone -->
+          <div class="setting-card setting-danger">
+            <div class="setting-title">⚠️ Danger Zone</div>
+            <div class="setting-body">
+              <div class="setting-desc">Permanently erase ALL attendance history. This cannot be undone.</div>
+              <button id="reset-btn" class="btn-danger">🗑️ Delete All Data</button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Mobile Bottom Nav -->
+    <nav class="mobile-nav">
+      <button class="nav-btn active" data-s="today"><span>📅</span><span>Today</span></button>
+      <button class="nav-btn" data-s="schedule"><span>🗓️</span><span>Sched</span></button>
+      <button class="nav-btn" data-s="calendar"><span>📆</span><span>Cal</span></button>
+      <button class="nav-btn" data-s="subjects"><span>📊</span><span>Subjects</span></button>
+      <button class="nav-btn" data-s="analytics"><span>📈</span><span>Stats</span></button>
+      <button class="nav-btn" data-s="settings"><span>⚙️</span><span>Settings</span></button>
+    </nav>
+
+  </div><!-- /main-wrap -->
+</div><!-- /layout -->
+</div><!-- /screen-app -->
+
+<!-- Fullscreen Confetti Canvas -->
+<canvas id="confetti-canvas"></canvas>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
