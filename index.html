@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=4.0">
+  <link rel="stylesheet" href="style.css?v=4.1">
 </head>
 <body>
 
@@ -692,18 +692,6 @@
       <div class="sbp-box" id="p-need" style="display:none">—</div>
     </div>
 
-    <!-- Theme Switcher & Sound -->
-    <div class="theme-switch-wrap">
-      <div class="theme-switch-lbl"><span>🎨 Theme</span></div>
-      <div class="theme-pills">
-        <button class="theme-pill-btn theme-pill-cosmic active" id="th-cosmic" title="Cosmic Midnight" onclick="setTheme('cosmic')"></button>
-        <button class="theme-pill-btn theme-pill-emerald" id="th-emerald" title="Emerald Obsidian" onclick="setTheme('emerald')"></button>
-        <button class="theme-pill-btn theme-pill-sunset" id="th-sunset" title="Sunset Velvet" onclick="setTheme('sunset')"></button>
-        <button class="theme-pill-btn theme-pill-oled" id="th-oled" title="Pure OLED" onclick="setTheme('oled')"></button>
-      </div>
-      <button class="btn-sound-toggle" id="sound-btn" onclick="toggleSound()" title="Sound effects">🔊</button>
-    </div>
-
     <!-- Required badge -->
     <div class="sb-req">
       <span class="req-dot"></span> 75% Minimum Required
@@ -778,6 +766,20 @@
         </div>
       </div>
     </header>
+
+    <!-- Desktop Top Bar: Theme Switcher & Sound (Top Right Corner) -->
+    <div class="dashboard-topbar">
+      <div class="theme-switch-wrap dt-theme-wrap">
+        <div class="theme-switch-lbl"><span>🎨 Theme</span></div>
+        <div class="theme-pills">
+          <button class="theme-pill-btn theme-pill-cosmic active" id="th-cosmic" title="Cosmic Midnight" onclick="setTheme('cosmic')"></button>
+          <button class="theme-pill-btn theme-pill-emerald" id="th-emerald" title="Emerald Obsidian" onclick="setTheme('emerald')"></button>
+          <button class="theme-pill-btn theme-pill-sunset" id="th-sunset" title="Sunset Velvet" onclick="setTheme('sunset')"></button>
+          <button class="theme-pill-btn theme-pill-oled" id="th-oled" title="Pure OLED" onclick="setTheme('oled')"></button>
+        </div>
+        <button class="btn-sound-toggle" id="sound-btn" onclick="toggleSound()" title="Sound effects">🔊</button>
+      </div>
+    </div>
 
     <main class="main">
 
@@ -1224,6 +1226,6 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
 <!-- Tesseract OCR Engine (Client-Side) -->
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-<script src="app.js?v=4.0"></script>
+<script src="app.js?v=4.1"></script>
 </body>
 </html>
