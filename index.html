@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=4.5">
+  <link rel="stylesheet" href="style.css?v=4.6">
 </head>
 <body>
 
@@ -137,13 +137,35 @@
 
         <!-- Input -->
         <div class="login-form">
-          <label class="login-label" for="login-inp">✨ Enter your cute username</label>
-          <input id="login-inp" class="login-inp" type="text" placeholder="e.g. rahul123, priya07, amit99..." maxlength="20" autocomplete="off" spellcheck="false">
-          <div id="login-username-hint" class="login-username-hint">Letters &amp; numbers only (e.g. rahul123)</div>
-          <button id="login-btn" class="login-btn">Continue &rarr;</button>
+          <!-- Substep 1: Username Entry -->
+          <div id="login-step-username" class="login-substep active">
+            <label class="login-label" for="login-inp">✨ Enter your cute username</label>
+            <input id="login-inp" class="login-inp" type="text" placeholder="e.g. rahul123, priya07, amit99..." maxlength="20" autocomplete="off" spellcheck="false">
+            <div id="login-username-hint" class="login-username-hint">Letters &amp; numbers only (e.g. rahul123)</div>
+            <button id="login-btn" class="login-btn">Continue &rarr;</button>
 
-          <div class="login-or"><span>OR</span></div>
-          <button type="button" class="login-demo-btn" onclick="startDemoMode()">🚀 1-Click Live Demo (Explore All Features)</button>
+            <div class="login-or"><span>OR</span></div>
+            <button type="button" class="login-demo-btn" onclick="startDemoMode()">🚀 1-Click Live Demo (Explore All Features)</button>
+          </div>
+
+          <!-- Substep 2: Password Verification / Creation -->
+          <div id="login-step-password" class="login-substep" style="display:none;">
+            <div class="login-user-pill">
+              <span class="lup-avatar" id="lup-avatar">👤</span>
+              <span class="lup-name" id="lup-name">@user</span>
+              <button type="button" class="lup-edit" onclick="backToUsernameStep()" title="Change username">✏️ Edit</button>
+            </div>
+
+            <label class="login-label" id="login-pass-label" for="login-pass-inp">🔒 Enter your password</label>
+            <div class="login-pass-field-wrap">
+              <input id="login-pass-inp" class="login-inp login-pass-inp" type="password" placeholder="Enter password (min 4 chars)..." maxlength="30" autocomplete="current-password">
+              <button type="button" class="pass-eye-btn" id="pass-eye-btn" onclick="togglePasswordVisibility()" title="Show/Hide password">👁️</button>
+            </div>
+            <div id="login-pass-hint" class="login-username-hint">Enter password to unlock</div>
+            <button id="login-pass-btn" class="login-btn">Unlock &amp; Enter &rarr;</button>
+            
+            <button type="button" class="login-back-btn" onclick="backToUsernameStep()">&larr; Back to Username</button>
+          </div>
         </div>
 
         <!-- Existing users -->
@@ -1227,6 +1249,6 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
 <!-- Tesseract OCR Engine (Client-Side) -->
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-<script src="app.js?v=4.5"></script>
+<script src="app.js?v=4.6"></script>
 </body>
 </html>

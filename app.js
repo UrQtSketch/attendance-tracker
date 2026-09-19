@@ -79,6 +79,7 @@ function syncToFirebase(immediate = false) {
     updateCloudBadge('syncing', '☁️ Syncing to Cloud...');
     const payload = {
       username: username,
+      passHash: localStorage.getItem(UserMgr.ukey('pass_hash')) || '',
       attendance: Store.getAtt(),
       timetable: Store.getTT(),
       holidays: Store.getHols(),
@@ -142,6 +143,9 @@ async function syncFromFirebase(username) {
         const localCfg = Store.getCfg();
         App.cfg = { ...localCfg, ...data.config };
         Store.saveCfg(App.cfg);
+      }
+      if (data.passHash) {
+        localStorage.setItem(UserMgr.ukey('pass_hash'), data.passHash);
       }
       isSyncingFromCloud = false;
       updateCloudBadge('connected', '☁️ Firebase Connected');
@@ -928,26 +932,13 @@ function renderExistingUsers(){
     </div>`;
 }
 
-// Avatar tap on login screen → fast-path to app (skip setup for returning user)
+// Avatar tap on login screen → prompt for password verification
 window.loginAs = function(u){
   if(!u||!u.trim()) return;
   const username = u.trim();
-  UserMgr.set(username);
-  const existingTT = Store.getTT() || [];
-  if (existingTT.length > 0) {
-    playAudio('click');
-    bootApp(existingTT);
-  } else {
-    checkAuth();
-  }
-  if (db) {
-    syncFromFirebase(username).then(() => {
-      const cloudTT = Store.getTT() || [];
-      if (cloudTT.length > 0 && (!TIMETABLE || !TIMETABLE.length)) {
-        bootApp(cloudTT);
-      }
-    }).catch(e => console.warn(e));
-  }
+  const inp = qs('#login-inp');
+  if (inp) inp.value = username;
+  doLogin();
 };
 
 // 1-Click Instant Demo Mode
@@ -1059,7 +1050,93 @@ window.handleUsernameInput = function(e) {
   }, 350);
 };
 
-// "Continue" button: Step 1 (Cute Username) -> Step 2 (Course)
+// Password hashing helper (SHA-256 with salt + universal fallback)
+async function hashPassword(pass, username) {
+  try {
+    if (typeof crypto !== 'undefined' && crypto.subtle && typeof TextEncoder !== 'undefined') {
+      const salt = 'att_cute_' + cleanDocId(username) + '_2026';
+      const msgUint8 = new TextEncoder().encode(salt + pass);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+  } catch(e) {}
+  let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+  const str = (username || '') + ':::' + pass;
+  for (let i = 0; i < str.length; i++) {
+    const ch = str.charCodeAt(i);
+    h1 = Math.imul(h1 ^ ch, 2654435761);
+    h2 = Math.imul(h2 ^ ch, 1597334677);
+  }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  return (h2 >>> 0).toString(16).padStart(8, '0') + (h1 >>> 0).toString(16).padStart(8, '0');
+}
+
+let pendingAuthUser = '';
+let pendingAuthMode = 'login'; // 'login' or 'register'
+let pendingCloudData = null;
+
+function setPassHint(msg, type = '') {
+  const el = qs('#login-pass-hint');
+  if (!el) return;
+  el.textContent = msg;
+  el.className = 'login-username-hint' + (type ? ` hint-${type}` : '');
+}
+
+window.togglePasswordVisibility = function() {
+  const inp = qs('#login-pass-inp');
+  const btn = qs('#pass-eye-btn');
+  if (!inp) return;
+  if (inp.type === 'password') {
+    inp.type = 'text';
+    if (btn) btn.textContent = '🙈';
+  } else {
+    inp.type = 'password';
+    if (btn) btn.textContent = '👁️';
+  }
+};
+
+window.backToUsernameStep = function() {
+  const stepUser = qs('#login-step-username');
+  const stepPass = qs('#login-step-password');
+  if (stepUser) stepUser.style.display = 'flex';
+  if (stepPass) stepPass.style.display = 'none';
+  const inp = qs('#login-inp');
+  if (inp) inp.focus();
+};
+
+function showPasswordSubstep({ username, mode, title, placeholder, hint, btnText }) {
+  const stepUser = qs('#login-step-username');
+  const stepPass = qs('#login-step-password');
+  if (stepUser) stepUser.style.display = 'none';
+  if (stepPass) stepPass.style.display = 'flex';
+
+  const lupName = qs('#lup-name');
+  if (lupName) lupName.textContent = '@' + username;
+  const lupAv = qs('#lup-avatar');
+  if (lupAv) lupAv.textContent = username.charAt(0).toUpperCase();
+
+  const label = qs('#login-pass-label');
+  if (label) label.textContent = title;
+
+  const passInp = qs('#login-pass-inp');
+  if (passInp) {
+    passInp.value = '';
+    passInp.placeholder = placeholder;
+    passInp.type = 'password';
+    passInp.focus();
+  }
+
+  const eyeBtn = qs('#pass-eye-btn');
+  if (eyeBtn) eyeBtn.textContent = '👁️';
+
+  setPassHint(hint, '');
+  const pBtn = qs('#login-pass-btn');
+  if (pBtn) pBtn.textContent = btnText;
+}
+
+// "Continue" button: Step 1 (Cute Username) -> Step 2 (Password Prompt)
 async function doLogin(){
   const inp = qs('#login-inp');
   const raw = (inp ? inp.value : '').trim();
@@ -1079,49 +1156,151 @@ async function doLogin(){
   const oldText = btn ? btn.textContent : 'Continue →';
   if (btn) {
     btn.disabled = true;
-    btn.textContent = 'Verifying Uniqueness...';
+    btn.textContent = 'Verifying Account...';
   }
 
-  // Check if returning user on this browser:
-  const localList = UserMgr.getList().map(u => u.toLowerCase());
-  const isLocalUser = localList.includes(username.toLowerCase());
-
-  let isTaken = false;
-  let existingCloudData = null;
+  let docExists = false;
+  let cloudData = null;
 
   if (db) {
     try {
       const docSnap = await db.collection('attendance_users').doc(cleanDocId(username)).get();
       if (docSnap.exists) {
-        existingCloudData = docSnap.data();
-        // If someone else already registered this username on the cloud and it's not on this device:
-        if (!isLocalUser) {
-          isTaken = true;
-        }
+        docExists = true;
+        cloudData = docSnap.data();
       }
     } catch (e) {
       console.warn('Login cloud fetch error:', e);
     }
   }
 
-  if (isTaken) {
+  const localList = UserMgr.getList().map(u => u.toLowerCase());
+  const existsLocally = localList.includes(username.toLowerCase());
+
+  if (btn) {
+    btn.disabled = false;
+    btn.textContent = oldText;
+  }
+
+  pendingAuthUser = username;
+  pendingCloudData = cloudData;
+
+  // Decide mode: Existing User vs New Registration
+  if (docExists || existsLocally) {
+    pendingAuthMode = 'login';
+    showPasswordSubstep({
+      username: username,
+      mode: 'login',
+      title: '🔒 Enter your password',
+      placeholder: 'Enter your password...',
+      hint: 'Welcome back! Enter your password to unlock your attendance.',
+      btnText: 'Unlock & Enter →'
+    });
+  } else {
+    pendingAuthMode = 'register';
+    showPasswordSubstep({
+      username: username,
+      mode: 'register',
+      title: '🔑 Set your cute password',
+      placeholder: 'Create password (min 4 characters)...',
+      hint: '🔒 Set a password so only you can access your tracker!',
+      btnText: 'Save Password & Continue →'
+    });
+  }
+}
+
+// Password Verification & Submission
+async function doPasswordAuth(){
+  const passInp = qs('#login-pass-inp');
+  const pass = (passInp ? passInp.value : '').trim();
+
+  if (!pass || pass.length < 4) {
+    shake('#login-pass-inp');
+    setPassHint('⚠️ Password must be at least 4 characters!', 'error');
+    if (passInp) passInp.focus();
+    return;
+  }
+
+  const btn = qs('#login-pass-btn');
+  const oldText = btn ? btn.textContent : 'Unlock & Enter →';
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = 'Verifying...';
+  }
+
+  const hash = await hashPassword(pass, pendingAuthUser);
+
+  if (pendingAuthMode === 'register') {
+    // New User Registration:
+    UserMgr.set(pendingAuthUser);
+    localStorage.setItem(UserMgr.ukey('pass_hash'), hash);
+
+    if (db) {
+      try {
+        const docId = cleanDocId(pendingAuthUser);
+        await db.collection('attendance_users').doc(docId).set({
+          username: pendingAuthUser,
+          passHash: hash,
+          createdAt: (typeof firebase !== 'undefined' && firebase.firestore) ? firebase.firestore.FieldValue.serverTimestamp() : new Date().toISOString()
+        }, { merge: true });
+      } catch(e) {
+        console.warn('Initial user profile save:', e);
+      }
+    }
+
     if (btn) {
       btn.disabled = false;
       btn.textContent = oldText;
     }
-    shake('#login-inp');
-    const suggest = username + Math.floor(Math.random() * 89 + 10);
-    setUsernameHint(`❌ "${username}" already exists on this website! Try "${suggest}"`, 'error');
-    showSaved(`🥺 "${username}" is already taken!`);
+
+    playAudio('click');
+    showSaved('✨ Account created for @' + pendingAuthUser + '!');
+    navToStep('course');
     return;
   }
 
-  UserMgr.set(username);
-  let existingTT = Store.getTT() || [];
+  // Existing User Login:
+  let correctHash = '';
+  if (pendingCloudData && pendingCloudData.passHash) {
+    correctHash = pendingCloudData.passHash;
+  } else {
+    correctHash = localStorage.getItem(`au_${pendingAuthUser}_pass_hash`) || '';
+  }
 
-  if (existingTT.length === 0 && existingCloudData && existingCloudData.timetable) {
-    Store.saveTT(existingCloudData.timetable);
-    existingTT = existingCloudData.timetable;
+  // If this is a legacy account without a password, register this password!
+  if (!correctHash) {
+    correctHash = hash;
+    localStorage.setItem(`au_${pendingAuthUser}_pass_hash`, hash);
+    if (db) {
+      db.collection('attendance_users').doc(cleanDocId(pendingAuthUser)).set({ passHash: hash }, { merge: true }).catch(()=>{});
+    }
+  }
+
+  if (hash !== correctHash) {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = oldText;
+    }
+    shake('#login-pass-inp');
+    setPassHint('❌ Incorrect password! Please try again.', 'error');
+    playAudio('absent'); // Cute "Oh no" warning reaction!
+    if (passInp) passInp.focus();
+    return;
+  }
+
+  // Password VERIFIED! Give entry!
+  UserMgr.set(pendingAuthUser);
+  localStorage.setItem(UserMgr.ukey('pass_hash'), hash);
+
+  let existingTT = Store.getTT() || [];
+  if (pendingCloudData) {
+    if (pendingCloudData.timetable && Array.isArray(pendingCloudData.timetable) && pendingCloudData.timetable.length > 0) {
+      Store.saveTT(pendingCloudData.timetable);
+      existingTT = pendingCloudData.timetable;
+    }
+    if (pendingCloudData.attendance) Store.saveAtt(pendingCloudData.attendance);
+    if (pendingCloudData.config) Store.saveCfg(pendingCloudData.config);
+    if (pendingCloudData.holidays) Store.saveHols(pendingCloudData.holidays);
   }
 
   if (btn) {
@@ -1131,6 +1310,7 @@ async function doLogin(){
 
   if (existingTT.length > 0) {
     playAudio('celebrate');
+    showSaved('🎉 Welcome back, @' + pendingAuthUser + '!');
     bootApp(existingTT);
   } else {
     playAudio('click');
@@ -1138,7 +1318,7 @@ async function doLogin(){
   }
 
   if (db) {
-    syncFromFirebase(username).catch(err => console.warn('Background sync:', err));
+    syncFromFirebase(pendingAuthUser).catch(err => console.warn('Background sync:', err));
   }
 }
 
@@ -3326,6 +3506,8 @@ async function init(){
   qs('#login-btn')?.addEventListener('click',doLogin);
   qs('#login-inp')?.addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
   qs('#login-inp')?.addEventListener('input', window.handleUsernameInput);
+  qs('#login-pass-btn')?.addEventListener('click', doPasswordAuth);
+  qs('#login-pass-inp')?.addEventListener('keydown', e=>{ if(e.key==='Enter') doPasswordAuth(); });
   qs('#c-program')?.addEventListener('keydown',e=>{ if(e.key==='Enter') submitCourseSetup(); });
   qs('#add-cls-btn')?.addEventListener('click',addClassEntry);
   qs('#start-btn')?.addEventListener('click',()=>navToStep('review'));
