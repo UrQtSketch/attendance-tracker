@@ -378,8 +378,90 @@ function getAudioCtx() {
   return audioCtx;
 }
 
+let speechVoices = [];
+if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+  const loadVoices = () => {
+    try { speechVoices = window.speechSynthesis.getVoices() || []; } catch(e){}
+  };
+  loadVoices();
+  if (window.speechSynthesis.onvoiceschanged !== undefined) {
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+  }
+}
+
+function playCuteOhNo() {
+  if (!App.soundEnabled) return;
+
+  // 1. Cute anime/cartoon voice saying "Oh noooooooo!" (~3 seconds)
+  if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+    try {
+      window.speechSynthesis.cancel();
+      const utt = new SpeechSynthesisUtterance('Oh noooooooo!');
+      utt.pitch = 1.75; // cute high pitch
+      utt.rate = 0.55;  // stretched out to last 3 seconds
+      utt.volume = 1.0;
+
+      const voices = speechVoices.length ? speechVoices : window.speechSynthesis.getVoices();
+      if (voices && voices.length) {
+        const cuteVoice = voices.find(v => 
+          (v.name.includes('Female') || v.name.includes('Zira') || v.name.includes('Samantha') || 
+           v.name.includes('Victoria') || v.name.includes('Google UK English Female') || 
+           v.name.includes('Natural') || v.name.includes('Karen') || v.name.includes('Google US English')) && 
+          v.lang.startsWith('en')
+        ) || voices.find(v => v.lang.startsWith('en'));
+        if (cuteVoice) utt.voice = cuteVoice;
+      }
+      window.speechSynthesis.speak(utt);
+    } catch (e) {
+      console.warn('Cute speech synthesis error:', e);
+    }
+  }
+
+  // 2. Cute cartoon descending wobble musical slide (3.0s duration via Web Audio API)
+  try {
+    const ctx = getAudioCtx();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    const vibrato = ctx.createOscillator();
+    const vibratoGain = ctx.createGain();
+
+    // Cute whimsical cartoon vibrato wobble
+    vibrato.frequency.setValueAtTime(5.8, now);
+    vibratoGain.gain.setValueAtTime(14, now);
+    vibrato.connect(osc.frequency);
+    vibrato.start(now);
+    vibrato.stop(now + 3.0);
+
+    osc.type = 'sine';
+    // Gentle melodic slide: C5 (523Hz) -> G4 (392Hz) -> E4 (330Hz) -> C4 (261Hz)
+    osc.frequency.setValueAtTime(523.25, now);
+    osc.frequency.exponentialRampToValueAtTime(392.00, now + 0.9);
+    osc.frequency.exponentialRampToValueAtTime(329.63, now + 1.8);
+    osc.frequency.exponentialRampToValueAtTime(261.63, now + 2.9);
+
+    gain.gain.setValueAtTime(0.18, now);
+    gain.gain.setValueAtTime(0.16, now + 1.4);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 3.0);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(now);
+    osc.stop(now + 3.0);
+  } catch (e) {}
+}
+
 function playAudio(type) {
   if (!App.soundEnabled) return;
+
+  if (type === 'absent') {
+    playCuteOhNo();
+    return;
+  }
+
   try {
     const ctx = getAudioCtx();
     if (!ctx) return;
@@ -397,14 +479,6 @@ function playAudio(type) {
       gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
       osc.start(now);
       osc.stop(now + 0.25);
-    } else if (type === 'absent') {
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(260, now);
-      osc.frequency.exponentialRampToValueAtTime(170, now + 0.12);
-      gain.gain.setValueAtTime(0.2, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
-      osc.start(now);
-      osc.stop(now + 0.2);
     } else if (type === 'celebrate') {
       [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
         const o = ctx.createOscillator();
@@ -625,10 +699,14 @@ function fmtPct(n){ return(!isFinite(n)||isNaN(n))?'0.0%':n.toFixed(1)+'%'; }
 function scCls(pct,cfg){ const r=cfg?.req||75,w=cfg?.warn||65; return pct>=r?'safe':pct>=w?'warn':'danger'; }
 function qs(s){ return document.querySelector(s); }
 function qsa(s){ return[...document.querySelectorAll(s)]; }
-function showSaved(){
+function showSaved(msg = '✓ Saved'){
   const el=qs('#save-ind'); if(!el) return;
+  el.textContent = msg;
   el.classList.add('show'); clearTimeout(App.saveTimer);
-  App.saveTimer=setTimeout(()=>el.classList.remove('show'),2000);
+  App.saveTimer=setTimeout(()=>{
+    el.classList.remove('show');
+    setTimeout(() => { el.textContent = '✓ Saved'; }, 400);
+  }, 2500);
 }
 function shake(sel){ const el=qs(sel); if(!el) return; el.classList.add('shake'); setTimeout(()=>el.classList.remove('shake'),500); }
 
@@ -2378,7 +2456,11 @@ window.mark=function(dk,id,status){
     playAudio('celebrate');
   }
 
-  showSaved();
+  if (status === 'absent') {
+    showSaved('🥺 Oh noooooooo!');
+  } else {
+    showSaved('✓ Saved');
+  }
   renderToday();
   updateSidebar();
   updateBunkometer();
