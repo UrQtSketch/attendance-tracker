@@ -608,6 +608,15 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); 
 .login-inp::placeholder { color:var(--text3); }
 .login-inp:focus { border-color:var(--blue);box-shadow:0 0 0 3px rgba(99,102,241,0.2); }
 
+.login-username-hint {
+  font-size:12px;font-weight:600;color:var(--text3);
+  text-align:left;min-height:18px;margin-top:-4px;margin-bottom:2px;
+  transition:all 0.2s ease;display:flex;align-items:center;gap:5px;
+}
+.login-username-hint.hint-error { color:#f87171; }
+.login-username-hint.hint-success { color:#34d399; }
+.login-username-hint.hint-checking { color:var(--blue2); }
+
 .login-btn {
   width:100%;background:linear-gradient(135deg,var(--blue),var(--purple));
   border:none;color:white;padding:14px;border-radius:14px;

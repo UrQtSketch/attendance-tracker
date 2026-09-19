@@ -980,33 +980,154 @@ window.startDemoMode = function() {
   bootApp(App.pendingTT);
 };
 
-// "Continue" button: Step 1 (Name) -> Step 2 (Course)
+let checkUsernameTimer = null;
+
+function setUsernameHint(msg, type = '') {
+  const el = qs('#login-username-hint');
+  if (!el) return;
+  el.textContent = msg;
+  el.className = 'login-username-hint' + (type ? ` hint-${type}` : '');
+}
+
+function validateCuteUsername(val) {
+  if (!val) {
+    return { valid: false, msg: 'Letters & numbers only (e.g. rahul123)' };
+  }
+  if (val.length < 3) {
+    return { valid: false, msg: '⚠️ Minimum 3 characters required (e.g. priya07)' };
+  }
+  if (val.length > 20) {
+    return { valid: false, msg: '⚠️ Maximum 20 characters allowed' };
+  }
+  if (!/^[a-zA-Z0-9]+$/.test(val)) {
+    return { valid: false, msg: '⚠️ Only letters and numbers allowed (no spaces or symbols)' };
+  }
+  const hasLetters = /[a-zA-Z]/.test(val);
+  const hasNumbers = /[0-9]/.test(val);
+  if (!hasLetters) {
+    return { valid: false, msg: '⚠️ Must include letters too (e.g. user' + val + ')' };
+  }
+  if (!hasNumbers) {
+    return { valid: false, msg: '⚠️ Must include numbers too (e.g. ' + val + '123)' };
+  }
+  return { valid: true, msg: '' };
+}
+
+window.handleUsernameInput = function(e) {
+  const inp = e.target;
+  const clean = inp.value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 20);
+  if (inp.value !== clean) {
+    inp.value = clean;
+  }
+
+  clearTimeout(checkUsernameTimer);
+  const val = clean.trim();
+  if (!val) {
+    setUsernameHint('Letters & numbers only (e.g. rahul123)', '');
+    return;
+  }
+
+  const v = validateCuteUsername(val);
+  if (!v.valid) {
+    setUsernameHint(v.msg, 'error');
+    return;
+  }
+
+  const localList = UserMgr.getList().map(u => u.toLowerCase());
+  if (localList.includes(val.toLowerCase())) {
+    setUsernameHint('✨ Welcome back! Click Continue to log in', 'success');
+    return;
+  }
+
+  setUsernameHint('Checking uniqueness... ⏳', 'checking');
+  checkUsernameTimer = setTimeout(async () => {
+    if (!db) {
+      setUsernameHint(`✨ @${val} is unique!`, 'success');
+      return;
+    }
+    try {
+      const docSnap = await db.collection('attendance_users').doc(cleanDocId(val)).get();
+      if (docSnap.exists) {
+        const suggest = val + Math.floor(Math.random() * 89 + 10);
+        setUsernameHint(`❌ "${val}" is already taken! Try "${suggest}"`, 'error');
+      } else {
+        setUsernameHint(`✨ Yay! "${val}" is unique & available!`, 'success');
+      }
+    } catch(err) {
+      setUsernameHint(`✨ "${val}" is ready!`, 'success');
+    }
+  }, 350);
+};
+
+// "Continue" button: Step 1 (Cute Username) -> Step 2 (Course)
 async function doLogin(){
   const inp = qs('#login-inp');
-  const username = (inp ? inp.value : '').trim();
-  if(!username || username.length < 2){
+  const raw = (inp ? inp.value : '').trim();
+  const clean = raw.replace(/[^a-zA-Z0-9]/g, '').slice(0, 20);
+  if (inp && inp.value !== clean) inp.value = clean;
+
+  const v = validateCuteUsername(clean);
+  if (!v.valid) {
     shake('#login-inp');
+    setUsernameHint(v.msg, 'error');
     if (inp) inp.focus();
     return;
   }
 
+  const username = clean;
   const btn = qs('#login-btn');
   const oldText = btn ? btn.textContent : 'Continue →';
-  if (btn) btn.textContent = 'Checking Cloud...';
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = 'Verifying Uniqueness...';
+  }
+
+  // Check if returning user on this browser:
+  const localList = UserMgr.getList().map(u => u.toLowerCase());
+  const isLocalUser = localList.includes(username.toLowerCase());
+
+  let isTaken = false;
+  let existingCloudData = null;
+
+  if (db) {
+    try {
+      const docSnap = await db.collection('attendance_users').doc(cleanDocId(username)).get();
+      if (docSnap.exists) {
+        existingCloudData = docSnap.data();
+        // If someone else already registered this username on the cloud and it's not on this device:
+        if (!isLocalUser) {
+          isTaken = true;
+        }
+      }
+    } catch (e) {
+      console.warn('Login cloud fetch error:', e);
+    }
+  }
+
+  if (isTaken) {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = oldText;
+    }
+    shake('#login-inp');
+    const suggest = username + Math.floor(Math.random() * 89 + 10);
+    setUsernameHint(`❌ "${username}" already exists on this website! Try "${suggest}"`, 'error');
+    showSaved(`🥺 "${username}" is already taken!`);
+    return;
+  }
 
   UserMgr.set(username);
   let existingTT = Store.getTT() || [];
 
-  if (existingTT.length === 0 && db) {
-    try {
-      await syncFromFirebase(username);
-      existingTT = Store.getTT() || [];
-    } catch (e) {
-      console.warn('Login cloud fetch:', e);
-    }
+  if (existingTT.length === 0 && existingCloudData && existingCloudData.timetable) {
+    Store.saveTT(existingCloudData.timetable);
+    existingTT = existingCloudData.timetable;
   }
 
-  if (btn) btn.textContent = oldText;
+  if (btn) {
+    btn.disabled = false;
+    btn.textContent = oldText;
+  }
 
   if (existingTT.length > 0) {
     playAudio('celebrate');
@@ -1016,7 +1137,7 @@ async function doLogin(){
     navToStep('course');
   }
 
-  if(db){
+  if (db) {
     syncFromFirebase(username).catch(err => console.warn('Background sync:', err));
   }
 }
@@ -3204,6 +3325,7 @@ async function init(){
   initFirebase();
   qs('#login-btn')?.addEventListener('click',doLogin);
   qs('#login-inp')?.addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
+  qs('#login-inp')?.addEventListener('input', window.handleUsernameInput);
   qs('#c-program')?.addEventListener('keydown',e=>{ if(e.key==='Enter') submitCourseSetup(); });
   qs('#add-cls-btn')?.addEventListener('click',addClassEntry);
   qs('#start-btn')?.addEventListener('click',()=>navToStep('review'));

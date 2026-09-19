@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=4.4">
+  <link rel="stylesheet" href="style.css?v=4.5">
 </head>
 <body>
 
@@ -137,8 +137,9 @@
 
         <!-- Input -->
         <div class="login-form">
-          <label class="login-label" for="login-inp">Enter your name to continue</label>
-          <input id="login-inp" class="login-inp" type="text" placeholder="e.g. Rahul, Priya, Amit..." maxlength="30" autocomplete="off" spellcheck="false">
+          <label class="login-label" for="login-inp">✨ Enter your cute username</label>
+          <input id="login-inp" class="login-inp" type="text" placeholder="e.g. rahul123, priya07, amit99..." maxlength="20" autocomplete="off" spellcheck="false">
+          <div id="login-username-hint" class="login-username-hint">Letters &amp; numbers only (e.g. rahul123)</div>
           <button id="login-btn" class="login-btn">Continue &rarr;</button>
 
           <div class="login-or"><span>OR</span></div>
@@ -1226,6 +1227,6 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
 <!-- Tesseract OCR Engine (Client-Side) -->
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-<script src="app.js?v=4.4"></script>
+<script src="app.js?v=4.5"></script>
 </body>
 </html>
